@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map</title>
+    <meta content="text/html;" http-equiv="content-type" charset="utf-8">
+
+    <link rel="stylesheet" href="http://localhost/styles/style.css" type="text/css">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://openlayers.org/en/v4.0.1/build/ol.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+    <script src="http://epsg.io/32628.js"></script>
+  </head>
+  <body>
+    <div class="row">
+      <div id="hiddenMenu" style="display:none;margin:25px;z-index:2;position:absolute">
+        <button type="button" onclick="Togglemenu();" class="btn btn-default">
+          <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div style="z-index:2;position:absolute;background:white;height:100%;width:300px;margin-left:15px" id="leftmenu">
+        <div style="padding-left:10px;padding-right:5px;">
+          <button id="myBtn" onclick="loadWMS()" style="margin-top:5px;">WMS</button>
+          <button type="button" onclick="Togglemenu();" class="btn btn-default" style="float:right;margin:5px;">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="btn-group" data-toggle="buttons" style="padding-left:10px">
+          <label class="btn btn-primary" name="mylabel" id="lpol">
+            <input type="checkbox" name="myCheckbox" id="pol" onchange="addDraw(this, 'lpol', 'Polygon');" /> Area
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="llin">
+            <input type="checkbox" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> Length
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lcir">
+            <input type="checkbox" name="myCheckbox" id="cir" onchange="addDraw(this, 'lcir', 'Circle');" /> Circle
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lpoi">
+            <input type="checkbox" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> Point
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lzd">
+            <input type="checkbox" name="myCheckbox" id="zd" onchange="zoomdrag(this, 'lzd');" /> Zoom-Drag
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lzi">
+            <input type="checkbox" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> Zoom-In
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lzo">
+            <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> Zoom-Out
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lmov">
+            <input type="checkbox" name="myCheckbox" id="mov" onchange="mHand(this, 'lmov');"/> Hand
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lcom">
+            <input type="checkbox" name="myCheckbox" id="com" onchange="addDraw(this, 'lcom', 'Point');"/> Comment
+          </label>
+          <label class="btn btn-primary" name="mylabel" id="lfid">
+            <input type="checkbox" name="myCheckbox" id="fid" onchange="setCursor(this, 'lfid');"/> Information
+          </label>
+        </div>
+
+        <div class="searchBar">
+          <div style="background-color:gray;text-align:center;">
+            Go to Search:
+          </div>
+          <div>
+            <form>
+              <input id="street" type="search" onkeyup="showHint()" autocomplete="off">
+              , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;">
+            </form>
+            <div id="txtHint"></div>
+          </div>
+        </div>
+
+        <div class="searchBar">
+          <div style="background-color:gray;text-align:center;">
+            Maps
+          </div>
+          <div>
+            <div class="panel panel-default" >
+              <div class="panel-heading" >
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#collapse1" class="accordion-toggle">Default Maps</a>
+                </h4>
+
+              </div>
+              <div id="collapse1" class="panel-collapse collapse in" >
+                <div style ='padding:10px;'>
+                  <input id='vision_pipe' onclick='Visibility(this)' type='checkbox'>
+                  Opacity Tuberia: <input id='pipe_opa' type='range' min='0' max='1' step='0.1' value='1' style='width:25%;display:inline-block' onchange='changeOpacity(this);'/>
+                  <span id='pipe_res'>1</span>
+                  <a id='info_pipe' onclick=showInfo(this); style='cursor:pointer;' data-toggle='modal' data-target='#infoModal'>Information</a>
+                </div>
+                <div style ='padding:10px;'>
+                  <input id='vision_comm' onclick='Visibility(this)' type='checkbox'>
+                  Opacity Comments: <input id='comm_opa' type='range' min='0' max='1' step='0.1' value='1' style='width:25%;display:inline-block' onchange='changeOpacity(this);'/>
+                  <span id='comm_res'>1</span>
+                  <a id='info_comm' onclick=showInfo(this); style='cursor:pointer;' data-toggle='modal' data-target='#infoModal'>Information</a>
+                </div>
+              </div>
+              <hr style="margin:2px">
+              <div class="panel-heading" >
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#collapse2" class="accordion-toggle collapsed">Custom Maps</a>
+                </h4>
+              </div>
+              <div id="collapse2" class="panel-collapse collapse" >
+                <div id="initialdiv" style ="padding:10px;max-height:250px;overflow-y:scroll;width:100%">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-left:initial;border:1px solid black;">
+            <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#geo">Geographic</a></li>
+              <li><a data-toggle="tab" href="#utm">UTM</a></li>
+            </ul>
+            <div class="tab-content" styel>
+              <div id="geo" class="tab-pane fade in active">
+                <form>
+                  Longitude:<br><input type="text" id="lon"><br>
+                  Latitude:<br><input type="text" id="lat"><br>
+                  <input type="button"  id="GoTo_geo" value="Submit">
+                </form>
+              </div>
+              <div id="utm" class="tab-pane fade">
+                <form>
+                  X:<input type="text" id="x"><br>
+                  Y:<input type="text" id="y"><br>
+                  <input type="button"  id="GoTo_utm" value="Submit">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xs-12">
+        <div id="group-maps">
+          <div id="map" class="map"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="WMSurl" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        URL: <input type="text" id="loader" value="http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities">
+        <button onclick="layerLoader()">Load map</button>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="infoModal" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h2 class="modal-title" style="background-color:#9fc1ef;text-align:center">Layer Information</h2>
+          </div>
+          <div class="modal-body">
+            <h3 id="inf_title" style="color:#9fc1ef">[title]</h3>
+            <hr style="border-top: 1px solid #9fc1ef;">
+            <p id="inf_id">Layer ID: [name]</p>
+            <p id="inf_abs">Abstract: [abs]</p>
+            <p id="inf_cp">Contact Person: [cp]</p>
+            <p id="inf_org">Organization: [org]</p>
+            <p id="inf_email">Email: [email]</p>
+            <p id="inf_phone">Telephone: [tel]</p>
+            <p id="inf_ac">Access Constraints: [ac]</p>
+            <p id="inf_wms">WMS: [url]</p>
+            <p id="inf_legend">Legend: [lgn.png]</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal fade" id="PointInfo" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h2 class="modal-title" style="background-color:#9fc1ef;text-align:center">Feature Information</h2>
+          </div>
+          <div class="modal-body">
+            <div id="nodelist">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <script>
+    //Start Globals
+    //draws
+    var sketch;
+    var measureTooltipElement;
+    var measureTooltip;
+    var boxInteraction;
+    var draw;
+    //delete draws
+    var featureID = 0;
+    var otro;
+    var selectedFeatureID;
+    var tooltipid = 1;
+    //modal
+    var modal = document.getElementById('WMSurl');
+    //initial map
+    var source = new ol.source.Vector();
+    var vector = new ol.layer.Vector({
+      source: source,
+      style: new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.2)'
+        }),
+        stroke: new ol.style.Stroke({
+          color: '#ffcc33',
+          width: 2
+        }),
+        image: new ol.style.Circle({
+          radius: 7,
+          fill: new ol.style.Fill({
+            color: '#ffcc33'
+          })
+        })
+      })
+    });
+    vector.setZIndex(99);
+    var pipeline = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'http://localhost:8080/geoserver/wms',
+        params: {'LAYERS': 'tuberia'},
+      })
+    });
+    var comments = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: 'http://localhost:8080/geoserver/wms',
+        params: {'LAYERS': 'comments'},
+      })
+    });
+    var map = new ol.Map({
+     layers: [
+       new ol.layer.Tile({
+         source: new ol.source.OSM()
+       }), vector, pipeline, comments
+     ],
+     target: 'map',
+     view: new ol.View({
+       center: [0, 0],
+       zoom: 2
+     })
+   });
+   pipeline.setVisible(false);
+   comments.setVisible(false);
+   //load wms
+   var lastlayer = 0;
+   var nmaps = 0;
+   var info = new Array();
+   var customLayers = new Array();
+   var group_count = 0;
+   //group buttons events
+   var evt_move;
+   var evt_grab;
+   var defaultLayers;
+   //end Globals
+
+    $('#PointInfo').on('hidden.bs.modal', function () {
+      document.getElementById("nodelist").innerHTML = "";
+    })
+    function Togglemenu() {
+        var x = document.getElementById('leftmenu');
+        var y = document.getElementById('hiddenMenu');
+        if (x.style.display === 'none') {
+            x.style.display = 'block';
+            y.style.display = 'none';
+
+        } else {
+            x.style.display = 'none';
+            y.style.display = 'block';
+        }
+    }
+
+    function loadWMS(){
+      //load custom map.
+      var btn = document.getElementById("myBtn");
+      var span = document.getElementsByClassName("close")[0];
+      modal.style.display = "block";
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+      window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+      }
+    }
+
+    var pointerMoveHandler = function(evt) {
+      if (evt.dragging) {
+        return;
+      }
+      var tooltipCoord = evt.coordinate;
+
+      if (sketch) {
+        var output;
+        var geom = (sketch.getGeometry());
+        if (geom instanceof ol.geom.Polygon) {
+          output = formatArea(geom);
+          tooltipCoord = geom.getInteriorPoint().getCoordinates();
+        } else if (geom instanceof ol.geom.LineString) {
+          output = formatLength(geom);
+          tooltipCoord = geom.getLastCoordinate();
+        } else if (geom instanceof ol.geom.Circle){
+          output = formatCircle(geom);
+          tooltipCoord = geom.getLastCoordinate();
+        }
+        measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("+(featureID+1)+"); style='cursor:pointer;'>X</a>";
+        measureTooltip.setPosition(tooltipCoord);
+      }
+    };
+
+    var clickEvents = function(evt){
+      var zin = document.getElementById('zi');
+      var zou = document.getElementById('zo');
+      var feat = document.getElementById('fid');
+      var pto = document.getElementById('poi');
+      var comment = document.getElementById('com');
+      var vision_pipe = document.getElementById('vision_pipe');
+      var vision_comm = document.getElementById('vision_comm');
+
+      var coordinate = evt.coordinate;
+      var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+          coordinate, 'EPSG:3857', 'EPSG:4326'));
+      if (pto.checked){
+        measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'>X</a></div>";
+        measureTooltip.setPosition(coordinate);
+        measureTooltipElement = null;
+        createMeasureTooltip();
+        ol.Observable.unByKey();
+      }
+      if (comment.checked){
+        createMeasureTooltip();
+        measureTooltipElement.innerHTML =
+        '<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form>User:<br><input type="text" id="user"><br>Comment:<br><textarea id="comment">Write the comment</textarea><input type="hidden" id="featureid" value="'+featureID+'"><input type="hidden" id="pto" value="' +
+        coordinate + '"><br><a onclick=DeleteFeature('+featureID+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><button type="button" name="button" class="btn btn-default" onclick="insertComm()">submit</button></form></div>';
+        measureTooltip.setPosition(coordinate);
+        measureTooltipElement = null;
+        createMeasureTooltip();
+        ol.Observable.unByKey();
+      }
+      if (zin.checked){
+        map.getView().setCenter(coordinate);
+        map.getView().setZoom(map.getView().getZoom()+1);
+      }
+      if (zou.checked){
+        map.getView().setCenter(coordinate);
+        map.getView().setZoom(map.getView().getZoom()-1);
+      }
+      if (feat.checked){
+        var view = map.getView();
+        var viewResolution = (view.getResolution());
+        var url;
+        var code;
+        var flag = false;
+        if (vision_pipe.checked){
+          flag = true;
+          url = pipeline.I.source.getGetFeatureInfoUrl(
+              evt.coordinate, viewResolution, 'EPSG:3857',
+              {'INFO_FORMAT': 'text/html'});
+          code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+          var newdiv = document.createElement('div');
+          newdiv.innerHTML = code;
+          document.getElementById("nodelist").appendChild(newdiv);
+        }
+        if (vision_comm.checked){
+          flag = true;
+          url = comments.I.source.getGetFeatureInfoUrl(
+              evt.coordinate, viewResolution, 'EPSG:3857',
+              {'INFO_FORMAT': 'text/html'});
+          code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+          var newdiv = document.createElement('div');
+          newdiv.innerHTML = code;
+          document.getElementById("nodelist").appendChild(newdiv);
+        }
+        for (var i = 0; i < (customLayers.length - defaultLayers); i++) {
+          var layer_act =  document.getElementById('layerVisibility'+i);
+          if (layer_act.checked){
+            flag = true;
+            url = customLayers[i].I.source.getGetFeatureInfoUrl(
+                evt.coordinate, viewResolution, 'EPSG:3857',
+                {'INFO_FORMAT': 'text/html'});
+            code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+            var newdiv = document.createElement('div');
+            newdiv.innerHTML = code;
+            document.getElementById("nodelist").appendChild(newdiv);
+          }
+        }
+        if(!flag){
+          document.getElementById("nodelist").innerHTML = "<h3>No layers selected<h3>";
+        }
+        $('#PointInfo').modal('show');
+      }
+    }
+
+     defaultLayers = 0;
+     map.on('pointermove', pointerMoveHandler);
+     map.on('singleclick', clickEvents);
+
+      function layerLoader(){
+        //delete old map
+        var elem = document.getElementById("map");
+        elem.parentNode.removeChild(elem);
+        source.clear();
+        var div = document.createElement('div');
+        div.id = "map";
+        div.className = "map";
+        div.style.height = "100%";
+        div.Name = "remap";
+        document.getElementById("group-maps").appendChild(div);
+        modal.style.display = "none";
+        //load new map
+        var parser = new ol.format.WMSCapabilities();
+        var ln = new Array();
+
+        var url = document.getElementById('loader');
+        if (url.value==""){
+          alert("Empty URL");
+          location.reload();
+        }
+        linkUrl = url.value;
+        //var url = 'http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities';
+
+        fetch(linkUrl).then(function(response) {
+          return response.text();
+        }).then(function(text) {
+          var result = parser.read(text);
+          //document.getElementById('log').innerText = JSON.stringify(result, null, 2);
+          var nlayers = result.Capability.Layer.Layer.length;
+          //i total position all layers
+          //x position of the actual array
+          //lastlayer rebember last position of last group of layers
+          var i = lastlayer;
+          var x = 0;
+          while (i < (nlayers + lastlayer)) {
+            ln[i] = result.Capability.Layer.Layer[x].Name;
+            info[i] = [result.Capability.Layer.Layer[x].Title,
+                       result.Capability.Layer.Layer[x].Name,
+                       result.Capability.Layer.Layer[x].Abstract,
+                       result.Service.ContactInformation.ContactPersonPrimary.ContactPerson,
+                       result.Service.ContactInformation.ContactPersonPrimary.ContactOrganization,
+                       result.Service.ContactInformation.ContactElectronicMailAddress,
+                       result.Service.ContactInformation.ContactVoiceTelephone,
+                       result.Service.AccessConstraints,
+                       linkUrl,
+                       linkUrl.substr(0, linkUrl.indexOf('?'))+"?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER="+result.Capability.Layer.Layer[x].Name];
+
+
+            customLayers[i] = new ol.layer.Tile({
+              source: new ol.source.TileWMS({
+                url: linkUrl,
+                params: {'LAYERS': ln[i]},
+              })
+            });
+            i++;
+            x++;
+          }
+          var j = lastlayer;
+          var collapmap = document.createElement('div');
+          collapmap.innerHTML = '<p id="group_'+group_count+'" onclick="changeSymbol(this)" data-toggle="collapse" data-target="#op'+nmaps+'" style="cursor:pointer"><i id="symbol_'+group_count+'" class="glyphicon glyphicon-minus"></i> <u>'+result.Service.Title+'</u></p><div id="op'+nmaps+'" class="collapse in"></div>'
+          document.getElementById("initialdiv").appendChild(collapmap);
+          while (j < (nlayers + lastlayer)) {
+            var hl = "<div style ='padding:10px;'><input id='layerVisibility"+j+"' onclick='Visibility(this)' type='checkbox'> Opacity "+info[j][0]+": <input id='customLayers"+j+"_opa' type='range' min='0' max='1' step='0.1' value='1' style='width:25%;display:inline-block' onchange='changeOpacity(this);'/><span id='customLayers"+j+"_res'>1</span> <a id='"+j+"'onclick=showInfo(this); style='cursor:pointer;' data-toggle='modal' data-target='#infoModal'>Information</a></div>";
+            var div = document.createElement('div');
+            div.innerHTML = hl;
+            document.getElementById("op"+nmaps).appendChild(div);
+            j++;
+          }
+          nmaps++;
+          lastlayer = j;
+          group_count++;
+
+            customLayers.push(vector);
+            customLayers.push(pipeline);
+            customLayers.push(comments);
+             map = new ol.Map({
+                layers: [
+                  new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                  }), new ol.layer.Group({
+                    layers: customLayers
+                  })
+                ],
+                target: 'map',
+                view: new ol.View({
+                  center: [0, 0],
+                  zoom: 2
+                })
+              });
+              for (var i = 0; i < customLayers.length-3; i++) {
+                customLayers[i].setVisible(false);
+              }
+
+              defaultLayers = 3;
+              map.on('pointermove', pointerMoveHandler);
+              map.on('singleclick', clickEvents);
+        });
+      }
+
+      function changeSymbol(group){
+        var aux = group.id.substr(group.id.indexOf('_'), group.id.length);
+        var sym = document.getElementById("symbol_"+aux.substr(1, aux.length));
+        if (sym.className == 'glyphicon glyphicon-minus'){
+          sym.className = 'glyphicon glyphicon-plus';
+        }else{
+          sym.className = 'glyphicon glyphicon-minus';
+        }
+      }
+
+      function insertComm() {
+          var us = document.getElementById("user");
+          var co = document.getElementById("comment");
+          var pt = document.getElementById("pto");
+          var id = document.getElementById("featureid");
+          var xmlhttp = new XMLHttpRequest();
+          xmlhttp.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                  comments.getSource().updateParams({"time": Date.now()});
+                  DeleteFeature(id.value);
+              }
+          };
+          xmlhttp.open("POST", "insertCommentv2.php?u="+us.value+"&c="+co.value+"&p="+pt.value, true);
+          xmlhttp.send();
+      }
+
+      function changeOpacity(layer){
+        if (layer.id == "pipe_opa"){
+          document.getElementById("pipe_res").innerHTML = layer.value;
+          pipeline.setOpacity(layer.value);
+          return;
+        }
+        if (layer.id == "comm_opa"){
+          document.getElementById("comm_res").innerHTML = layer.value;
+          comments.setOpacity(layer.value);
+          return;
+        }
+        var aux_id = layer.id.slice(0, -4);
+        var num = layer.id.slice(12,13);
+        if (layer.id.slice(13,14)!='_'){
+          num = layer.id.slice(12,14);
+        }
+        var aux_res = aux_id + "_res";
+        document.getElementById(aux_res).innerHTML = layer.value;
+        customLayers[num].setOpacity(layer.value);
+      }
+
+      function Visibility(layer){
+        if (layer.id == "vision_pipe"){
+          if (layer.checked){
+            pipeline.setVisible(true);
+            return;
+          }else{
+            pipeline.setVisible(false);
+            return;
+          }
+        }
+        if (layer.id == "vision_comm"){
+          if (layer.checked){
+            comments.setVisible(true);
+            return;
+          }else{
+            comments.setVisible(false);
+            return;
+          }
+        }
+        var num = layer.id.slice(15,16);
+        if (layer.id.length>16){
+          num = layer.id.slice(15,17);
+        }
+        if (layer.checked){
+          customLayers[num].setVisible(true);
+        }else{
+          customLayers[num].setVisible(false);
+        }
+      }
+
+      function showInfo(layer) {
+        if (layer.id == "info_pipe"){
+          document.getElementById("inf_title").innerHTML = "tuberia";
+          document.getElementById("inf_id").innerHTML = "Layer ID: tfm:tuebria";
+          document.getElementById("inf_abs").innerHTML = "Abstract: Red de aguas";
+          document.getElementById("inf_cp").innerHTML = "Contact Person: Claudius Ptolomaeus";
+          document.getElementById("inf_org").innerHTML = "Organization: The ancient geographes INC";
+          document.getElementById("inf_email").innerHTML = "Email: claudius.ptolomaeus@gmail.com";
+          document.getElementById("inf_phone").innerHTML = "Telephone: ";
+          document.getElementById("inf_ac").innerHTML = "Access Constraints: NONE";
+          document.getElementById("inf_wms").innerHTML = "WMS: http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities";
+          document.getElementById("inf_legend").innerHTML = "Legend:<br><img src='http://localhost:8080/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=tfm:tuberia'> Pipeline";
+          return;
+        }
+        if (layer.id == "info_comm"){
+          document.getElementById("inf_title").innerHTML = "comments";
+          document.getElementById("inf_id").innerHTML = "Layer ID: tfm:comments";
+          document.getElementById("inf_abs").innerHTML = "Abstract: Comments of the interest points";
+          document.getElementById("inf_cp").innerHTML = "Contact Person: Claudius Ptolomaeus";
+          document.getElementById("inf_org").innerHTML = "Organization: The ancient geographes INC";
+          document.getElementById("inf_email").innerHTML = "Email: claudius.ptolomaeus@gmail.com";
+          document.getElementById("inf_phone").innerHTML = "Telephone: ";
+          document.getElementById("inf_ac").innerHTML = "Access Constraints: NONE";
+          document.getElementById("inf_wms").innerHTML = "WMS: http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities";
+          document.getElementById("inf_legend").innerHTML = "Legend:<br><img src='http://localhost:8080/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=tfm:comments'> Comment";
+          return;
+        }
+        document.getElementById("inf_title").innerHTML = info[layer.id][0];
+        document.getElementById("inf_id").innerHTML = "Layer ID: "+info[layer.id][1];
+        document.getElementById("inf_abs").innerHTML = "Abstract: "+info[layer.id][2];
+        document.getElementById("inf_cp").innerHTML = "Contact Person: "+info[layer.id][3];
+        document.getElementById("inf_org").innerHTML = "Organization: "+info[layer.id][4];
+        document.getElementById("inf_email").innerHTML = "Email: "+info[layer.id][5];
+        document.getElementById("inf_phone").innerHTML = "Telephone: "+info[layer.id][6];
+        document.getElementById("inf_ac").innerHTML = "Access Constraints: "+info[layer.id][7];
+        document.getElementById("inf_wms").innerHTML = "WMS: "+info[layer.id][8];
+        document.getElementById("inf_legend").innerHTML = "Legend:<br><img src='"+info[layer.id][9]+"'>";
+      }
+
+      function zoomdrag(chx_id, lb_id){
+        map.removeInteraction(draw);
+        if (chx_id.checked == false){
+          document.getElementById("map").style.cursor = "default";
+          if(boxInteraction){
+            boxInteraction.setActive(false);
+          }
+        }else {
+          document.getElementById("map").style.cursor = "zoom-in";
+          boxInteraction = new ol.interaction.DragZoom({
+                condition: ol.events.condition.noModifierKeys
+          });
+          map.addInteraction(boxInteraction);
+          toggle_buttons(chx_id, lb_id);
+        }
+      }
+
+      function addDraw(chx_id, lb_id, Draw_type) {
+        map.removeInteraction(draw);
+        if (chx_id.checked == false){
+          document.getElementById("map").style.cursor = "default";
+        }else {
+          document.getElementById("map").style.cursor = "none";
+          draw = new ol.interaction.Draw({
+            clickTolerance: 6,
+            source: source,
+            type: Draw_type,
+            style: new ol.style.Style({
+              fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)'
+              }),
+              stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.5)',
+                lineDash: [10, 10],
+                width: 2
+              }),
+              image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                  color: 'rgba(0, 0, 0, 0.7)'
+                }),
+                fill: new ol.style.Fill({
+                  color: 'rgba(255, 255, 255, 0.2)'
+                })
+              })
+            })
+          });
+          map.addInteraction(draw);
+          createMeasureTooltip();
+          draw.on('drawstart',
+              function(evt) {
+                // set sketch
+                sketch = evt.feature;
+              }, this);
+
+          draw.on('drawend',
+              function(evt) {
+                tooltipid = tooltipid + 1;
+                measureTooltipElement.className = 'tooltip-static';
+                measureTooltip.setOffset([0, -7]);
+                // unset sketch
+                sketch = null;
+                // unset tooltip so that a new one can be created
+                measureTooltipElement = null;
+                createMeasureTooltip();
+                featureID = featureID + 1;
+                evt.feature.setProperties({
+                    'id': featureID
+                })
+              }, this);
+              toggle_buttons(chx_id, lb_id);
+          }
+      }
+
+      function createMeasureTooltip() {
+        if (measureTooltipElement) {
+          measureTooltipElement.parentNode.removeChild(measureTooltipElement);
+        }
+        measureTooltipElement = document.createElement('div');
+        measureTooltipElement.className = 'tooltip-measure';
+        measureTooltipElement.id = 'tooltip'+(tooltipid);
+        measureTooltip = new ol.Overlay({
+          element: measureTooltipElement,
+          offset: [0, -15],
+          positioning: 'bottom-center'
+        });
+        map.addOverlay(measureTooltip);
+      }
+
+      var formatLength = function(line) {
+        var length;
+        length = Math.round(line.getLength() * 100) / 100;
+        var output;
+        if (length > 100) {
+          output = (Math.round(length / 1000 * 100) / 100) +
+              ' ' + 'km';
+        } else {
+          output = (Math.round(length * 100) / 100) +
+              ' ' + 'm';
+        }
+        return output;
+      };
+
+      var formatArea = function(polygon) {
+        var area;
+        area = polygon.getArea();
+        var output;
+        if (area > 10000) {
+          output = (Math.round(area / 1000000 * 100) / 100) +
+              ' ' + 'km<sup>2</sup>';
+        } else {
+          output = (Math.round(area * 100) / 100) +
+              ' ' + 'm<sup>2</sup>';
+        }
+        return output;
+      };
+
+      var formatCircle = function(circle){
+        var radius = circle.getRadius();
+        var area = 3.14159265359 * (radius * radius);
+        var output;
+        if (area > 10000) {
+          output = (Math.round(area / 1000000 * 100) / 100) +
+              ' ' + 'km<sup>2</sup>';
+        } else {
+          output = (Math.round(area * 100) / 100) +
+              ' ' + 'm<sup>2</sup>';
+        }
+        return output;
+      }
+
+      function mHand(chx_id, lb_id){
+        map.removeInteraction(draw);
+        if (chx_id.checked == false){
+          document.getElementById("map").style.cursor = "default";
+          ol.Observable.unByKey(evt_move);
+          ol.Observable.unByKey(evt_grab);
+        }else {
+          if(boxInteraction){
+            boxInteraction.setActive(false);
+          }
+            document.getElementById("map").style.cursor = "grab";
+            evt_move =  map.on('pointerdrag', function(){
+                document.getElementById("map").style.cursor = "move";
+            });
+            evt_grab = map.on('moveend', function(){
+                document.getElementById("map").style.cursor = "grab";
+            });
+            toggle_buttons(chx_id, lb_id);
+        }
+      }
+
+      function toggle_buttons (checkboxId, labelId){
+        //For Checkbox
+        var myCheckbox = document.getElementsByName("myCheckbox");
+        Array.prototype.forEach.call(myCheckbox,function(mc){
+          mc.checked = false;
+        });
+        checkboxId.checked = true;
+        //For Label
+        var mylabel = document.getElementsByName("mylabel");
+        Array.prototype.forEach.call(mylabel,function(ml){
+          ml.classList.remove('active');
+        });
+        //For Zoom-Drag
+        document.getElementById(labelId).classList.add('active');
+        if ((boxInteraction)&&(checkboxId.id!='zd')){
+          boxInteraction.setActive(false);
+        }
+        //For mouse pointer
+        var moveHand = document.getElementById('mov');
+        if (moveHand.checked == false){
+          ol.Observable.unByKey(evt_move);
+          ol.Observable.unByKey(evt_grab);
+        }
+      }
+
+      function setCursor(chx_id, lb_id){
+        map.removeInteraction(draw);
+        if (chx_id.checked == false){
+          document.getElementById("map").style.cursor = "default";
+        }else {
+          if (chx_id.id == 'zi'){
+            document.getElementById("map").style.cursor = "zoom-in";
+          }
+          if (chx_id.id == 'zo'){
+            document.getElementById("map").style.cursor = "zoom-out";
+          }
+          if (chx_id.id == 'fid'){
+            document.getElementById("map").style.cursor = "default";
+          }
+          toggle_buttons(chx_id, lb_id);
+        }
+      }
+
+      var center_geo = document.getElementById('GoTo_geo');
+        center_geo.addEventListener('click', function() {
+        var longitude = document.getElementById('lon');
+        var latitude = document.getElementById('lat');
+        var location_geo = ol.proj.fromLonLat([parseFloat(longitude.value),parseFloat(latitude.value)]);
+        map.getView().setCenter(location_geo);
+        map.getView().setZoom(18);
+      }, false);
+
+      var center_utm = document.getElementById('GoTo_utm');
+        center_utm.addEventListener('click', function() {
+        var x = document.getElementById('x');
+        var y = document.getElementById('y');
+        var pru2 = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
+        map.getView().setCenter(pru2);
+        map.getView().setZoom(18);
+      }, false);
+
+      function showHint() {
+        var port = document.getElementById('portal');
+        var str = document.getElementById('street');
+        if(port.value != ""){
+          document.getElementById("txtHint").innerHTML = "";
+        }
+          if (str.value.length < 3) {
+              document.getElementById("txtHint").innerHTML = "";
+              return;
+          } else {
+              var xmlhttp = new XMLHttpRequest();
+              xmlhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                      document.getElementById("txtHint").innerHTML = xmlhttp.responseText;
+                  }
+              }
+              xmlhttp.open("GET", "street.php?calle="+str.value+"&portal="+port.value, true);
+              xmlhttp.send();
+          }
+      }
+
+      function centerStreet(lon, lat, feature){
+        var pt = [lon, lat];
+        var test= ol.proj.transform(pt,'EPSG:32628','EPSG:3857');
+        if (feature){
+          source.addFeature(new ol.Feature(new ol.geom.Circle(test, 5)));
+        }
+        map.getView().setCenter(test);
+        map.getView().setZoom(19);
+      }
+
+      function DeleteFeature(id){
+        var features = source.getFeatures();
+         if (features != null && features.length > 0) {
+             for (x in features) {
+                var properties = features[x].getProperties();
+                var obj = properties.id;
+                if (obj == id) {
+                  source.removeFeature(features[x]);
+                  var divid = "tooltip"+id;
+                  document.getElementById(divid).style.display="none";
+                  break;
+                }
+             }
+         }
+      }
+
+    </script>
+  </body>
+</html>
