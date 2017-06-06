@@ -1,3 +1,4 @@
+  // Functions to center the view of map
   var center_geo = document.getElementById('GoTo_geo');
   center_geo.addEventListener('click', function() {
   var longitude = document.getElementById('lon');

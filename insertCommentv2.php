@@ -1,6 +1,7 @@
 <?php
+//Add a new comment in database
 $supuser = 'postgres';
-$passwd = 'ratonMOUSE65';
+$passwd = '';
 $db = 'tfm';
 $port = 5432;
 $host = 'localhost';
@@ -11,9 +12,7 @@ $comment = $_REQUEST["c"];
 $pto = $_REQUEST["p"];
 if ($user != ''){
   pg_query($cnx, "INSERT INTO comments (geom, owner, comment) VALUES (ST_SetSRID(ST_MakePoint($pto), 3857), '$user', '$comment');");
-  //echo 'Con user';
 } else {
   pg_query($cnx, "INSERT INTO comments (geom, comment) VALUES (ST_SetSRID(ST_MakePoint($pto), 3857), '$comment');");
-  //echo 'Sin user';
 }
 ?>

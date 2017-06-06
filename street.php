@@ -1,6 +1,7 @@
 <?php
+//Show streets of the query
 $supuser = 'postgres';
-$passwd = 'ratonMOUSE65';
+$passwd = '';
 $db = 'tfm';
 $port = 5432;
 $host = 'localhost';

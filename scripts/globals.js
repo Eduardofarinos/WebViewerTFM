@@ -1,4 +1,4 @@
-//Start Globals
+//Start Globals variables
 //draws
 var sketch;
 var measureTooltipElement;

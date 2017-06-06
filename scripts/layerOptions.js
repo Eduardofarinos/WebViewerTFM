@@ -1,3 +1,4 @@
+//Functions to help handle layers options
 function changeOpacity(layer){
   if (layer.id == "pipe_opa"){
     document.getElementById("pipe_res").innerHTML = layer.value;

@@ -1,3 +1,4 @@
+//Draw or delete features with their tooltips
 function addDraw(chx_id, lb_id, Draw_type) {
   map.removeInteraction(draw);
   if (chx_id.checked == false){

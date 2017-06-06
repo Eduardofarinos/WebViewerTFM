@@ -1,3 +1,4 @@
+//Functions to handle diferents mouse events 
 var pointerMoveHandler = function(evt) {
   if (evt.dragging) {
     return;

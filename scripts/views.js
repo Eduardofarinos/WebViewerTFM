@@ -1,3 +1,4 @@
+// Fucntions to change appearance of the view, buttons, cursor, modals ...
 function Togglemenu() {
     var x = document.getElementById('leftmenu');
     var y = document.getElementById('prue');

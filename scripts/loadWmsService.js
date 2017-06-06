@@ -1,3 +1,4 @@
+//Create a new map and colect information for the new layers
 function layerLoader(){
   //delete old map
   var elem = document.getElementById("map");
