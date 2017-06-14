@@ -108,3 +108,10 @@ function loadScript(url, callback){
     script.src = url;
     document.getElementsByTagName("head")[0].appendChild(script);
 }
+
+window.onresize = function(){
+  var width = screen.width;
+  var height = screen.height;
+  var size = map.getSize();
+  map.setSize([width, height])
+}
