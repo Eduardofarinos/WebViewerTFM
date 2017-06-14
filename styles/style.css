@@ -12,9 +12,11 @@
   font-weight: bold;
 }
 .tooltip-static {
-  background-color: #c5cbca;
+  background-color: white;
   color: black;
-  border: 1px solid #454545;
+  padding: 4px;
+  border-radius: 5px;
+  /*border: 1px solid #454545;*/
 }
 .tooltip-measure:before,
 .tooltip-static:before {
@@ -170,4 +172,10 @@
 .panel-heading .accordion-toggle.collapsed:after {
     /* symbol for "collapsed" panels */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.hintext{
+  z-index: 3;
+  position: absolute;
+  width: 280px;
 }

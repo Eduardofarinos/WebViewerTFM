@@ -1,4 +1,3 @@
-// Fucntions to change appearance of the view, buttons, cursor, modals ...
 function Togglemenu() {
     var x = document.getElementById('leftmenu');
     var y = document.getElementById('prue');
@@ -10,21 +9,6 @@ function Togglemenu() {
         x.style.display = 'none';
         y.style.display = 'block';
     }
-}
-
-function loadWMS(){
-  //load custom map.
-  var btn = document.getElementById("myBtn");
-  var span = document.getElementsByClassName("close")[0];
-  modal.style.display = "block";
-  span.onclick = function() {
-    modal.style.display = "none";
-  }
-  window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-  }
 }
 
 function changeSymbol(group){

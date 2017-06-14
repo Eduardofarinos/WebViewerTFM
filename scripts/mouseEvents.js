@@ -1,4 +1,3 @@
-//Functions to handle diferents mouse events 
 var pointerMoveHandler = function(evt) {
   if (evt.dragging) {
     return;
@@ -18,7 +17,7 @@ var pointerMoveHandler = function(evt) {
       output = formatCircle(geom);
       tooltipCoord = geom.getLastCoordinate();
     }
-    measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("+(featureID+1)+"); style='cursor:pointer;'>X</a>";
+    measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("+(featureID+1)+"); style='cursor:pointer;'><sup>X</sup></a>";
     measureTooltip.setPosition(tooltipCoord);
   }
 };
@@ -36,7 +35,7 @@ var clickEvents = function(evt){
   var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
       coordinate, 'EPSG:3857', 'EPSG:4326'));
   if (pto.checked){
-    measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'>X</a></div>";
+    measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'><sup>X</sup></a></div>";
     measureTooltip.setPosition(coordinate);
     measureTooltipElement = null;
     createMeasureTooltip();
@@ -61,6 +60,7 @@ var clickEvents = function(evt){
     map.getView().setZoom(map.getView().getZoom()-1);
   }
   if (feat.checked){
+    console.log("here");
     var view = map.getView();
     var viewResolution = (view.getResolution());
     var url;
@@ -91,7 +91,7 @@ var clickEvents = function(evt){
       if (layer_act.checked){
         flag = true;
         url = customLayers[i].I.source.getGetFeatureInfoUrl(
-            evt.coordinate, viewResolution, 'EPSG:3857',
+            evt.coordinate, viewResolution, info[i][10],
             {'INFO_FORMAT': 'text/html'});
         code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
         var newdiv = document.createElement('div');

@@ -1,8 +1,11 @@
-  // Functions to center the view of map
   var center_geo = document.getElementById('GoTo_geo');
   center_geo.addEventListener('click', function() {
   var longitude = document.getElementById('lon');
   var latitude = document.getElementById('lat');
+  if ((isEmpty(longitude.value))||(isEmpty(latitude.value))) {
+    alert("Invalid parameters");
+    return;
+  }
   var location_geo = ol.proj.fromLonLat([parseFloat(longitude.value),parseFloat(latitude.value)]);
   map.getView().setCenter(location_geo);
   map.getView().setZoom(18);
@@ -12,6 +15,10 @@
   center_utm.addEventListener('click', function() {
   var x = document.getElementById('x');
   var y = document.getElementById('y');
+  if ((isEmpty(x.value))||(isEmpty(y.value))) {
+    alert("Invalid parameters");
+    return;
+  }
   var pru2 = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
   map.getView().setCenter(pru2);
   map.getView().setZoom(18);

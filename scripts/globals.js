@@ -1,4 +1,4 @@
-//Start Globals variables
+//Start Globals
 //draws
 var sketch;
 var measureTooltipElement;
@@ -53,8 +53,8 @@ var map = new ol.Map({
  ],
  target: 'map',
  view: new ol.View({
-   center: [0, 0],
-   zoom: 2
+   center: [-1722584.517212906, 3257823.5051733414],
+   zoom: 12
  })
 });
 pipeline.setVisible(false);
@@ -65,6 +65,8 @@ var nmaps = 0;
 var info = new Array();
 var customLayers = new Array();
 var group_count = 0;
+var layerCrs;
+var projec;
 //group buttons events
 var evt_move;
 var evt_grab;
@@ -74,3 +76,35 @@ var defaultLayers;
 $('#PointInfo').on('hidden.bs.modal', function () {
   document.getElementById("nodelist").innerHTML = "";
 })
+
+$('.map').bind('contextmenu', function(e) {
+    return false;
+});
+
+function isEmpty(str){
+  if (!str.trim() || 0 === str.length){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+function loadScript(url, callback){
+    var script = document.createElement("script")
+    script.type = "text/javascript";
+    if (script.readyState){  //IE
+        script.onreadystatechange = function(){
+            if (script.readyState == "loaded" ||
+                    script.readyState == "complete"){
+                script.onreadystatechange = null;
+                callback();
+            }
+        };
+    } else {  //Others
+        script.onload = function(){
+            callback();
+        };
+    }
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+}
