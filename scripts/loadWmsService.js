@@ -136,12 +136,12 @@ function layerLoader(){
             map.on('pointermove', pointerMoveHandler);
             map.on('singleclick', clickEvents);
             document.getElementById("collapse2").className = "panel-collapse collapse in";
+      }else{
+        alert("Bad response from server: "+linkUrl+" " +
+              this.statusText + ' (' +
+              this.status + ')');
+        return;
       }
-    }else{
-      alert("Bad response from server: "+linkUrl+" " +
-            this.statusText + ' (' +
-            this.status + ')');
-      return;
     }
   }
   xhttp.send();
