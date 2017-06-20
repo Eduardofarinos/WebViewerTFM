@@ -99,6 +99,10 @@
 .searchBar{
   padding: 10px;
 }
+.mapMenu{
+  padding: 10px;
+  padding-top:0px;
+}
 .ol-zoom.ol-unselectable.ol-control{
   display: none;
 }
@@ -167,7 +171,7 @@
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
     content: "\e114";    /* adjust as needed, taken from bootstrap.css */
     float: right;        /* adjust as needed */
-    color: grey;         /* adjust as needed */
+    color: #333;         /* adjust as needed */
 }
 .panel-heading .accordion-toggle.collapsed:after {
     /* symbol for "collapsed" panels */
@@ -178,4 +182,46 @@
   z-index: 3;
   position: absolute;
   width: 280px;
+}
+
+.menu_hidden{
+  display:none;
+  margin:25px;
+  z-index:2;
+  position:absolute
+}
+
+.leftmenu{
+  z-index:2;
+  position:absolute;
+  background:white;
+  height:100%;
+  width:312px;
+  margin-left:15px;
+}
+
+.topmenu{
+  padding-left:10px;
+  padding-right:5px;
+}
+
+.initialdiv{
+  padding:10px;
+  max-height:250px;
+  overflow-y:scroll;
+  width:100%;
+}
+
+.formcoordinates{
+  margin:5px;
+}
+
+.modaltitle{
+  background-color:#9fc1ef;
+  text-align:center
+}
+
+.searchtitle{
+  background-color:gray;
+  text-align:center;
 }

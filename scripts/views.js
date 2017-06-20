@@ -1,6 +1,6 @@
 function Togglemenu() {
     var x = document.getElementById('leftmenu');
-    var y = document.getElementById('prue');
+    var y = document.getElementById('toggle_menu');
     if (x.style.display === 'none') {
         x.style.display = 'block';
         y.style.display = 'none';

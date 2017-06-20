@@ -60,7 +60,6 @@ var clickEvents = function(evt){
     map.getView().setZoom(map.getView().getZoom()-1);
   }
   if (feat.checked){
-    console.log("here");
     var view = map.getView();
     var viewResolution = (view.getResolution());
     var url;

@@ -67,6 +67,10 @@ var customLayers = new Array();
 var group_count = 0;
 var layerCrs;
 var projec;
+var layersSelected = new Array();
+var t;
+var projections = new Array();
+var linkUrl;
 //group buttons events
 var evt_move;
 var evt_grab;
@@ -80,6 +84,11 @@ $('#PointInfo').on('hidden.bs.modal', function () {
 $('.map').bind('contextmenu', function(e) {
     return false;
 });
+
+$('.dropdown-menu a[data-toggle="tab"]').click(function (e) {
+    e.stopPropagation()
+    $(this).tab('show')
+})
 
 function isEmpty(str){
   if (!str.trim() || 0 === str.length){
@@ -107,4 +116,11 @@ function loadScript(url, callback){
     }
     script.src = url;
     document.getElementsByTagName("head")[0].appendChild(script);
+}
+
+window.onresize = function(){
+  var width = screen.width;
+  var height = screen.height;
+  var size = map.getSize();
+  map.setSize([width, height])
 }

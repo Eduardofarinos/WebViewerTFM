@@ -1,4 +1,4 @@
-  var center_geo = document.getElementById('GoTo_geo');
+var center_geo = document.getElementById('GoTo_geo');
   center_geo.addEventListener('click', function() {
   var longitude = document.getElementById('lon');
   var latitude = document.getElementById('lat');

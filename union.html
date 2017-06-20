@@ -17,16 +17,35 @@
     <script src="http://epsg.io/32628.js"></script>
   </head>
   <body>
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
+
+      <!-- Modal content -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h2 class="modal-title" style="background-color:#9fc1ef;text-align:center">Load WMS service</h2>
+          </div>
+          <div class="modal-body">
+            URL: <input type="text" id="loader" value="http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities">
+            <button onclick="layerLoader()" style="float:right;">Load map</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="row">
-      <div id="hiddenMenu" style="display:none;margin:25px;z-index:2;position:absolute">
-        <button type="button" onclick="Togglemenu();" class="btn btn-default">
+      <div id="prue" style="display:none;margin:25px;z-index:2;position:absolute">
+        <button type="button" onclick="menu();" class="btn btn-default">
           <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
         </button>
       </div>
       <div style="z-index:2;position:absolute;background:white;height:100%;width:300px;margin-left:15px" id="leftmenu">
         <div style="padding-left:10px;padding-right:5px;">
-          <button id="myBtn" onclick="loadWMS()" style="margin-top:5px;">WMS</button>
-          <button type="button" onclick="Togglemenu();" class="btn btn-default" style="float:right;margin:5px;">
+          <button id="myBtn" data-toggle='modal' data-target='#myModal' style="margin-top:5px;">WMS</button>
+          <button type="button" onclick="menu();" class="btn btn-default" style="float:right;margin:5px;">
             <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
           </button>
         </div>
@@ -72,7 +91,7 @@
               <input id="street" type="search" onkeyup="showHint()" autocomplete="off">
               , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;">
             </form>
-            <div id="txtHint" class="hintext"></div>
+            <div id="txtHint"></div>
           </div>
         </div>
 
@@ -130,8 +149,8 @@
               </div>
               <div id="utm" class="tab-pane fade">
                 <form>
-                  Coordinate X:<br><input type="text" id="x"><br>
-                  Coordinate Y:<br><input type="text" id="y"><br>
+                  X:<input type="text" id="x"><br>
+                  Y:<input type="text" id="y"><br>
                   <input type="button"  id="GoTo_utm" value="Submit">
                 </form>
               </div>
@@ -141,19 +160,9 @@
       </div>
 
       <div class="col-xs-12">
-        <div id="group-maps">
+        <div id="group-maps" class="tlClogo">
           <div id="map" class="map"></div>
         </div>
-      </div>
-    </div>
-
-    <div id="WMSurl" class="modal">
-
-      <!-- Modal content -->
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        URL: <input type="text" id="loader" value="http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities">
-        <button onclick="layerLoader()">Load map</button>
       </div>
     </div>
 
@@ -209,22 +218,19 @@
       </div>
     </div>
     <script>
-
-    //Start Globals
-    //draws
+    //Start of globals variables
+    //
     var sketch;
     var measureTooltipElement;
     var measureTooltip;
     var boxInteraction;
     var draw;
-    //delete draws
+    //To select and delete draws
     var featureID = 0;
     var otro;
     var selectedFeatureID;
     var tooltipid = 1;
-    //modal
-    var modal = document.getElementById('WMSurl');
-    //initial map
+    //Default map
     var source = new ol.source.Vector();
     var vector = new ol.layer.Vector({
       source: source,
@@ -265,8 +271,8 @@
      ],
      target: 'map',
      view: new ol.View({
-       center: [-1722584.517212906, 3257823.5051733414],
-       zoom: 12
+       center: [0, 0],
+       zoom: 2
      })
    });
    pipeline.setVisible(false);
@@ -277,19 +283,19 @@
    var info = new Array();
    var customLayers = new Array();
    var group_count = 0;
-  var layerprojection = new Array();
    //group buttons events
    var evt_move;
    var evt_grab;
-   var defaultLayers;
    //end Globals
 
     $('#PointInfo').on('hidden.bs.modal', function () {
       document.getElementById("nodelist").innerHTML = "";
     })
-    function Togglemenu() {
+
+
+    function menu() {
         var x = document.getElementById('leftmenu');
-        var y = document.getElementById('hiddenMenu');
+        var y = document.getElementById('prue');
         if (x.style.display === 'none') {
             x.style.display = 'block';
             y.style.display = 'none';
@@ -298,21 +304,6 @@
             x.style.display = 'none';
             y.style.display = 'block';
         }
-    }
-
-    function loadWMS(){
-      //load custom map.
-      var btn = document.getElementById("myBtn");
-      var span = document.getElementsByClassName("close")[0];
-      modal.style.display = "block";
-      span.onclick = function() {
-        modal.style.display = "none";
-      }
-      window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-      }
     }
 
     var pointerMoveHandler = function(evt) {
@@ -334,296 +325,135 @@
           output = formatCircle(geom);
           tooltipCoord = geom.getLastCoordinate();
         }
-        measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("+(featureID+1)+"); style='cursor:pointer;'><sup>X</sup></a>";
+        measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("+(featureID+1)+"); style='cursor:pointer;'>X</a>";
         measureTooltip.setPosition(tooltipCoord);
       }
     };
 
-    var clickEvents = function(evt){
-      var zin = document.getElementById('zi');
-      var zou = document.getElementById('zo');
-      var feat = document.getElementById('fid');
-      var pto = document.getElementById('poi');
-      var comment = document.getElementById('com');
-      var vision_pipe = document.getElementById('vision_pipe');
-      var vision_comm = document.getElementById('vision_comm');
-
-      var coordinate = evt.coordinate;
-      var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-          coordinate, 'EPSG:3857', 'EPSG:4326'));
-      if (pto.checked){
-        measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'><sup>X</sup></a></div>";
-
-        measureTooltip.setPosition(coordinate);
-        measureTooltipElement = null;
-        createMeasureTooltip();
-        ol.Observable.unByKey();
-      }
-      if (comment.checked){
-        createMeasureTooltip();
-        measureTooltipElement.innerHTML =
-        '<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form>User:<br><input type="text" id="user"><br>Comment:<br><textarea id="comment">Write the comment</textarea><input type="hidden" id="featureid" value="'+featureID+'"><input type="hidden" id="pto" value="' +
-        coordinate + '"><br><a onclick=DeleteFeature('+featureID+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><button type="button" name="button" class="btn btn-default" onclick="insertComm()">submit</button></form></div>';
-        measureTooltip.setPosition(coordinate);
-        measureTooltipElement = null;
-        createMeasureTooltip();
-        ol.Observable.unByKey();
-      }
-      if (zin.checked){
-        map.getView().setCenter(coordinate);
-        map.getView().setZoom(map.getView().getZoom()+1);
-      }
-      if (zou.checked){
-        map.getView().setCenter(coordinate);
-        map.getView().setZoom(map.getView().getZoom()-1);
-      }
-      if (feat.checked){
-        var view = map.getView();
-        var viewResolution = (view.getResolution());
-        var url;
-        var code;
-        var flag = false;
-        if (vision_pipe.checked){
-          flag = true;
-          url = pipeline.I.source.getGetFeatureInfoUrl(
-              evt.coordinate, viewResolution, 'EPSG:3857',
-              {'INFO_FORMAT': 'text/html'});
-          code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
-          var newdiv = document.createElement('div');
-          newdiv.innerHTML = code;
-          document.getElementById("nodelist").appendChild(newdiv);
-        }
-        if (vision_comm.checked){
-          flag = true;
-          url = comments.I.source.getGetFeatureInfoUrl(
-              evt.coordinate, viewResolution, 'EPSG:3857',
-              {'INFO_FORMAT': 'text/html'});
-          code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
-          var newdiv = document.createElement('div');
-          newdiv.innerHTML = code;
-          document.getElementById("nodelist").appendChild(newdiv);
-        }
-        for (var i = 0; i < (customLayers.length - defaultLayers); i++) {
-          var layer_act =  document.getElementById('layerVisibility'+i);
-          if (layer_act.checked){
-            flag = true;
-            url = customLayers[i].I.source.getGetFeatureInfoUrl(
-                evt.coordinate, viewResolution, 'EPSG:3857',
-                {'INFO_FORMAT': 'text/html'});
-            code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
-            var newdiv = document.createElement('div');
-            newdiv.innerHTML = code;
-            document.getElementById("nodelist").appendChild(newdiv);
-          }
-        }
-        if(!flag){
-          document.getElementById("nodelist").innerHTML = "<h3>No layers selected<h3>";
-        }
-        $('#PointInfo').modal('show');
-      }
-    }
-
-     defaultLayers = 0;
      map.on('pointermove', pointerMoveHandler);
-     map.on('singleclick', clickEvents);
+     map.on('singleclick', function(evt) {
+       var zin = document.getElementById('zi');
+       var zou = document.getElementById('zo');
+       var feat = document.getElementById('fid');
+       var pto = document.getElementById('poi');
+       var comment = document.getElementById('com');
+       var vision_pipe = document.getElementById('vision_pipe');
+       var vision_comm = document.getElementById('vision_comm');
 
-     function layerLoader() {
-       var xhttp = new XMLHttpRequest();
-       var url = document.getElementById('loader');
-       var linkUrl = url.value;
-       if(linkUrl.indexOf('service') < 0){
-         if(linkUrl.indexOf('?') < 0){
-           linkUrl = linkUrl+'?service=wms&request=GetCapabilities';
-         }else{
-           linkUrl = linkUrl+'service=wms&request=GetCapabilities';
+       var coordinate = evt.coordinate;
+       var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+           coordinate, 'EPSG:3857', 'EPSG:4326'));
+       if (pto.checked){
+         measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'>X</a></div>";
+         //measureTooltipElement.innerHTML = coordinate;
+         measureTooltip.setPosition(coordinate);
+         measureTooltipElement = null;
+         createMeasureTooltip();
+         ol.Observable.unByKey();
+       }
+       if (comment.checked){
+         createMeasureTooltip();
+         //measureTooltipElement.innerHTML =
+         //'<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form action = "insertComment.php" method="post">User:<br><input type="text" name="user"><br>Comment:<br><textarea name="comment">Write the comment</textarea><input type="hidden" name="pto" value="' +
+         //coordinate + '"><br><a onclick=DeleteFeature('+(featureID)+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><input type="submit" value="Submit" class="btn btn-default"></form></div>';
+         measureTooltipElement.innerHTML =
+         '<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form>User:<br><input type="text" id="user"><br>Comment:<br><textarea id="comment">Write the comment</textarea><input type="hidden" id="featureid" value="'+featureID+'"><input type="hidden" id="pto" value="' +
+         coordinate + '"><br><a onclick=DeleteFeature('+featureID+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><button type="button" name="button" class="btn btn-default" onclick="insertComm()">submit</button></form></div>';
+         measureTooltip.setPosition(coordinate);
+         measureTooltipElement = null;
+         createMeasureTooltip();
+         ol.Observable.unByKey();
+       }
+       if (zin.checked){
+         map.getView().setCenter(coordinate);
+         map.getView().setZoom(map.getView().getZoom()+1);
+       }
+       if (zou.checked){
+         map.getView().setCenter(coordinate);
+         map.getView().setZoom(map.getView().getZoom()-1);
+       }
+       //document.getElementById('nodelist').innerHTML = '';
+       if (feat.checked){
+         var view = map.getView();
+         var viewResolution = (view.getResolution());
+         var url;
+         var code;
+         var flag = false;
+         if (vision_pipe.checked){
+           flag = true;
+           url = pipeline.I.source.getGetFeatureInfoUrl(
+               evt.coordinate, viewResolution, 'EPSG:3857',
+               {'INFO_FORMAT': 'text/html'});
+           code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+           var newdiv = document.createElement('div');
+           newdiv.innerHTML = code;
+           document.getElementById("nodelist").appendChild(newdiv);
          }
-       }
-       if (isEmpty(url.value)){
-         alert("Empty URL");
-         return;
-       }
-
-       xhttp.onreadystatechange = function() {
-         if (this.readyState == 4 && this.status == 200) {
-           var actualCenter = map.getView().getCenter();
-           var actualZoom = map.getView().getZoom();
-
-           //delete old map
-           var elem = document.getElementById("map");
-           elem.parentNode.removeChild(elem);
-           source.clear();
-           var div = document.createElement('div');
-           div.id = "map";
-           div.className = "map";
-           div.style.height = "100%";
-           div.Name = "remap";
-           document.getElementById("group-maps").appendChild(div);
-           modal.style.display = "none";
-           //load new map
-           var parser = new ol.format.WMSCapabilities();
-           var ln = new Array();
-
-           var result = parser.read(this.responseXML);
-           //document.getElementById('log').innerText = JSON.stringify(result, null, 2);
-           var nlayers = result.Capability.Layer.Layer.length;
-           //i total position all layers
-           //x position of the actual array
-           //lastlayer rebember last position of last group of layers
-           var i = lastlayer;
-           var x = 0;
-           var projec;
-
-           while (i < (nlayers + lastlayer)) {
-             ln[i] = result.Capability.Layer.Layer[x].Name;
-             info[i] = [result.Capability.Layer.Layer[x].Title,
-                        result.Capability.Layer.Layer[x].Name,
-                        result.Capability.Layer.Layer[x].Abstract,
-                        result.Service.ContactInformation.ContactPersonPrimary.ContactPerson,
-                        result.Service.ContactInformation.ContactPersonPrimary.ContactOrganization,
-                        result.Service.ContactInformation.ContactElectronicMailAddress,
-                        result.Service.ContactInformation.ContactVoiceTelephone,
-                        result.Service.AccessConstraints,
-                        linkUrl,
-                        linkUrl.substr(0, linkUrl.indexOf('?'))+"?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER="+result.Capability.Layer.Layer[x].Name];
-
-             if((result.Capability.Layer.Layer[x].BoundingBox[0].crs!="EPSG:4326")&&(result.Capability.Layer.Layer[x].BoundingBox[0].crs!="CRS:84")){
-               var crs = result.Capability.Layer.Layer[x].BoundingBox[0].crs
-               var newCRS = crs.substr(crs.indexOf(':')+1, crs.length)
-               //console.log(newCRS);
-               var addNewProjection = document.createElement('script');
-               addNewProjection.setAttribute('src','http://epsg.io/'+newCRS+'.js');
-               //document.head.appendChild(addNewProjection);
-               document.body.appendChild(addNewProjection);
-
-               projec = new ol.proj.Projection({
-                 code: result.Capability.Layer.Layer[x].BoundingBox[0].crs
-               });
-               customLayers[i] = new ol.layer.Tile({
-                 source: new ol.source.TileWMS({
-                   url: linkUrl,
-                   params: {'LAYERS': ln[i]},
-                   projection: projec
-                 })
-               });
-             }else{
-               customLayers[i] = new ol.layer.Tile({
-                 source: new ol.source.TileWMS({
-                   url: linkUrl,
-                   params: {'LAYERS': ln[i]},
-                 })
-               });
-             }
-             i++;
-             x++;
-           }
-           var j = lastlayer;
-           var collapmap = document.createElement('div');
-           collapmap.innerHTML = '<p id="group_'+group_count+'" onclick="changeSymbol(this)" data-toggle="collapse" data-target="#op'+nmaps+'" style="cursor:pointer"><i id="symbol_'+group_count+'" class="glyphicon glyphicon-minus"></i> <u>'+result.Service.Title+'</u></p><div id="op'+nmaps+'" class="collapse in"></div>'
-           document.getElementById("initialdiv").appendChild(collapmap);
-           while (j < (nlayers + lastlayer)) {
-             var hl = "<div style ='padding:10px;'><input id='layerVisibility"+j+"' onclick='Visibility(this)' type='checkbox'> Opacity "+info[j][0]+": <input id='customLayers"+j+"_opa' type='range' min='0' max='1' step='0.1' value='1' style='width:25%;display:inline-block' onchange='changeOpacity(this);'/><span id='customLayers"+j+"_res'>1</span> <a id='"+j+"'onclick=showInfo(this); style='cursor:pointer;' data-toggle='modal' data-target='#infoModal'>Information</a></div>";
-             var div = document.createElement('div');
-             div.innerHTML = hl;
-             document.getElementById("op"+nmaps).appendChild(div);
-             j++;
-           }
-           nmaps++;
-           lastlayer = j;
-           group_count++;
-
-             customLayers.push(vector);
-             customLayers.push(pipeline);
-             customLayers.push(comments);
-
-              map = new ol.Map({
-                 layers: [
-                   new ol.layer.Tile({
-                     source: new ol.source.OSM()
-                   }), new ol.layer.Group({
-                     layers: customLayers
-                   })
-                 ],
-                 target: 'map',
-                 view: new ol.View({
-                   center: actualCenter,
-                   zoom: actualZoom
-                 })
-               });
-               for (var i = 0; i < customLayers.length-3; i++) {
-                 if (!document.getElementById("layerVisibility"+i).checked){
-                   customLayers[i].setVisible(false);
-                 }
-               }
-
-               defaultLayers = 3;
-               map.on('pointermove', pointerMoveHandler);
-               map.on('singleclick', clickEvents);
+         if (vision_comm.checked){
+           flag = true;
+           url = comments.I.source.getGetFeatureInfoUrl(
+               evt.coordinate, viewResolution, 'EPSG:3857',
+               {'INFO_FORMAT': 'text/html'});
+           code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+           var newdiv = document.createElement('div');
+           newdiv.innerHTML = code;
+           document.getElementById("nodelist").appendChild(newdiv);
          }
+         for (var i = 0; i < (customLayers.length); i++) {
+           var layer_act =  document.getElementById('layerVisibility'+i);
+           if (layer_act.checked){
+             flag = true;
+             url = customLayers[i].I.source.getGetFeatureInfoUrl(
+                 evt.coordinate, viewResolution, 'EPSG:3857',
+                 {'INFO_FORMAT': 'text/html'});
+             code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+             var newdiv = document.createElement('div');
+             newdiv.innerHTML = code;
+             document.getElementById("nodelist").appendChild(newdiv);
+           }
+         }
+         if(!flag){
+           document.getElementById("nodelist").innerHTML = "<h3>No layers selected<h3>";
+         }
+         $('#PointInfo').modal('show');
        }
-       xhttp.open("GET", linkUrl, true);
-       xhttp.send();
-     }
+     });
 
+      function layerLoader(){
+        $('#myModal').modal('hide');
+        //delete old map
+        var elem = document.getElementById("map");
+        elem.parentNode.removeChild(elem);
+        source.clear();
+        var div = document.createElement('div');
+        div.id = "map";
+        div.className = "map";
+        div.style.height = "100%";
+        div.Name = "remap";
+        document.getElementById("group-maps").appendChild(div);
+        //load new map
+        var parser = new ol.format.WMSCapabilities();
+        var ln = new Array();
 
-    /* function layerLoader(){
-        //var url = 'http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities';
-        var badurl = false;
         var url = document.getElementById('loader');
-        var linkUrl = url.value;
-        if(linkUrl.indexOf('service') < 0){
-          if(linkUrl.indexOf('?') < 0){
-            linkUrl = linkUrl+'?service=wms&request=GetCapabilities';
-          }else{
-            linkUrl = linkUrl+'service=wms&request=GetCapabilities';
-          }
-        }
-        if (isEmpty(url.value)){
+        if (url.value==""){
           alert("Empty URL");
-          return;
+          location.reload();
         }
+        linkUrl = url.value;
+        //var url = 'http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities';
+
         fetch(linkUrl).then(function(response) {
-          if (response.status >= 400) {
-              alert("Bad response from server: "+linkUrl+" " +
-                  response.statusText + ' (' +
-                  response.status + ')');
-              badurl=true;
-          }
-          //location.reload();
           return response.text();
         }).then(function(text) {
-          if(badurl){
-            return;
-          }
-          //cogemos la vista actual
-
-          var actualCenter = map.getView().getCenter();
-          var actualZoom = map.getView().getZoom();
-
-          //delete old map
-          var elem = document.getElementById("map");
-          elem.parentNode.removeChild(elem);
-          source.clear();
-          var div = document.createElement('div');
-          div.id = "map";
-          div.className = "map";
-          div.style.height = "100%";
-          div.Name = "remap";
-          document.getElementById("group-maps").appendChild(div);
-          modal.style.display = "none";
-          //load new map
-          var parser = new ol.format.WMSCapabilities();
-          var ln = new Array();
-
           var result = parser.read(text);
           //document.getElementById('log').innerText = JSON.stringify(result, null, 2);
+          //var j=0;
           var nlayers = result.Capability.Layer.Layer.length;
-          //i total position all layers
-          //x position of the actual array
-          //lastlayer rebember last position of last group of layers
+          //hay que controlar la ultima capa añadida para sumar en el vector,
+          //pero no se puede usar para avanazar en result por eso esta "x"
           var i = lastlayer;
           var x = 0;
-          var projec;
-
           while (i < (nlayers + lastlayer)) {
             ln[i] = result.Capability.Layer.Layer[x].Name;
             info[i] = [result.Capability.Layer.Layer[x].Title,
@@ -637,38 +467,19 @@
                        linkUrl,
                        linkUrl.substr(0, linkUrl.indexOf('?'))+"?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER="+result.Capability.Layer.Layer[x].Name];
 
-            if((result.Capability.Layer.Layer[x].BoundingBox[0].crs!="EPSG:4326")&&(result.Capability.Layer.Layer[x].BoundingBox[0].crs!="CRS:84")){
-              var crs = result.Capability.Layer.Layer[x].BoundingBox[0].crs
-              var newCRS = crs.substr(crs.indexOf(':')+1, crs.length)
-              //console.log(newCRS);
-              var addNewProjection = document.createElement('script');
-              addNewProjection.setAttribute('src','http://epsg.io/'+newCRS+'.js');
-              //document.head.appendChild(addNewProjection);
-              document.body.appendChild(addNewProjection);
 
-              projec = new ol.proj.Projection({
-                code: result.Capability.Layer.Layer[x].BoundingBox[0].crs
-              });
-              customLayers[i] = new ol.layer.Tile({
-                source: new ol.source.TileWMS({
-                  url: linkUrl,
-                  params: {'LAYERS': ln[i]},
-                  projection: projec
-                })
-              });
-            }else{
-              customLayers[i] = new ol.layer.Tile({
-                source: new ol.source.TileWMS({
-                  url: linkUrl,
-                  params: {'LAYERS': ln[i]},
-                })
-              });
-            }
+            customLayers[i] = new ol.layer.Tile({
+              source: new ol.source.TileWMS({
+                url: linkUrl,
+                params: {'LAYERS': ln[i]},
+              })
+            });
             i++;
             x++;
           }
           var j = lastlayer;
           var collapmap = document.createElement('div');
+
           collapmap.innerHTML = '<p id="group_'+group_count+'" onclick="changeSymbol(this)" data-toggle="collapse" data-target="#op'+nmaps+'" style="cursor:pointer"><i id="symbol_'+group_count+'" class="glyphicon glyphicon-minus"></i> <u>'+result.Service.Title+'</u></p><div id="op'+nmaps+'" class="collapse in"></div>'
           document.getElementById("initialdiv").appendChild(collapmap);
           while (j < (nlayers + lastlayer)) {
@@ -685,7 +496,6 @@
             customLayers.push(vector);
             customLayers.push(pipeline);
             customLayers.push(comments);
-
              map = new ol.Map({
                 layers: [
                   new ol.layer.Tile({
@@ -696,21 +506,103 @@
                 ],
                 target: 'map',
                 view: new ol.View({
-                  center: actualCenter,
-                  zoom: actualZoom
+                  center: [0, 0],
+                  zoom: 2
                 })
               });
               for (var i = 0; i < customLayers.length-3; i++) {
-                if (!document.getElementById("layerVisibility"+i).checked){
-                  customLayers[i].setVisible(false);
-                }
+                customLayers[i].setVisible(false);
               }
 
-              defaultLayers = 3;
               map.on('pointermove', pointerMoveHandler);
-              map.on('singleclick', clickEvents);
+              map.on('singleclick', function(evt) {
+                var zin = document.getElementById('zi');
+                var zou = document.getElementById('zo');
+                var feat = document.getElementById('fid');
+                var pto = document.getElementById('poi');
+                var comment = document.getElementById('com');
+                var vision_pipe = document.getElementById('vision_pipe');
+                var vision_comm = document.getElementById('vision_comm');
+
+                var coordinate = evt.coordinate;
+                var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+                    coordinate, 'EPSG:3857', 'EPSG:4326'));
+                if (pto.checked){
+                  measureTooltipElement.innerHTML = "<div id='tooltip"+(tooltipid-1)+"' class='tooltip-static'>"+hdms+" <a onclick=DeleteFeature("+(featureID)+"); style='cursor:pointer;'>X</a></div>";
+                  //measureTooltipElement.innerHTML = coordinate;
+                  measureTooltip.setPosition(coordinate);
+                  measureTooltipElement = null;
+                  createMeasureTooltip();
+                  ol.Observable.unByKey();
+                }
+                if (comment.checked){
+                  createMeasureTooltip();
+                  //measureTooltipElement.innerHTML =
+                  //'<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form action = "insertComment.php" method="post">User:<br><input type="text" name="user"><br>Comment:<br><textarea name="comment">Write the comment</textarea><input type="hidden" name="pto" value="' +
+                  //coordinate + '"><br><a onclick=DeleteFeature('+(featureID)+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><input type="submit" value="Submit" class="btn btn-default"></form></div>';
+                  measureTooltipElement.innerHTML =
+                  '<div id="tooltip'+(tooltipid-1)+'" class="tooltip-static"><form>User:<br><input type="text" id="user"><br>Comment:<br><textarea id="comment">Write the comment</textarea><input type="hidden" id="featureid" value="'+featureID+'"><input type="hidden" id="pto" value="' +
+                  coordinate + '"><br><a onclick=DeleteFeature('+featureID+'); style="cursor:pointer;" class="btn btn-default">Cancel</a><button type="button" name="button" class="btn btn-default" onclick="insertComm()">submit</button></form></div>';
+                  measureTooltip.setPosition(coordinate);
+                  measureTooltipElement = null;
+                  createMeasureTooltip();
+                  ol.Observable.unByKey();
+                }
+                if (zin.checked){
+                  map.getView().setCenter(coordinate);
+                  map.getView().setZoom(map.getView().getZoom()+1);
+                }
+                if (zou.checked){
+                  map.getView().setCenter(coordinate);
+                  map.getView().setZoom(map.getView().getZoom()-1);
+                }
+                if (feat.checked){
+                  var view = map.getView();
+                  var viewResolution = (view.getResolution());
+                  var url;
+                  var code;
+                  var flag = false;
+                  if (vision_pipe.checked){
+                    flag = true;
+                    url = pipeline.I.source.getGetFeatureInfoUrl(
+                        evt.coordinate, viewResolution, 'EPSG:3857',
+                        {'INFO_FORMAT': 'text/html'});
+                    code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+                    var newdiv = document.createElement('div');
+                    newdiv.innerHTML = code;
+                    document.getElementById("nodelist").appendChild(newdiv);
+                  }
+                  if (vision_comm.checked){
+                    flag = true;
+                    url = comments.I.source.getGetFeatureInfoUrl(
+                        evt.coordinate, viewResolution, 'EPSG:3857',
+                        {'INFO_FORMAT': 'text/html'});
+                    code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+                    var newdiv = document.createElement('div');
+                    newdiv.innerHTML = code;
+                    document.getElementById("nodelist").appendChild(newdiv);
+                  }
+                  for (var i = 0; i < (customLayers.length - 3); i++) {
+                    var layer_act =  document.getElementById('layerVisibility'+i);
+                    if (layer_act.checked){
+                      flag = true;
+                      url = customLayers[i].I.source.getGetFeatureInfoUrl(
+                          evt.coordinate, viewResolution, 'EPSG:3857',
+                          {'INFO_FORMAT': 'text/html'});
+                      code = '<iframe seamless src="' + url + '"style="width:100%"></iframe>';
+                      var newdiv = document.createElement('div');
+                      newdiv.innerHTML = code;
+                      document.getElementById("nodelist").appendChild(newdiv);
+                    }
+                  }
+                  if(!flag){
+                    document.getElementById("nodelist").innerHTML = "<h3>No layers selected<h3>";
+                  }
+                  $('#PointInfo').modal('show');
+                }
+              });
         });
-      }*/
+      }
 
       function changeSymbol(group){
         var aux = group.id.substr(group.id.indexOf('_'), group.id.length);
@@ -1023,22 +915,10 @@
         }
       }
 
-      function isEmpty(str){
-        if ((!str.trim() || 0 === str.length)||(!str.trim() || 0 === str.length)){
-          return true;
-        }else{
-          return false;
-        }
-      }
-
       var center_geo = document.getElementById('GoTo_geo');
         center_geo.addEventListener('click', function() {
         var longitude = document.getElementById('lon');
         var latitude = document.getElementById('lat');
-        if ((isEmpty(longitude.value))||(isEmpty(latitude.value))) {
-          alert("Invalid parameters");
-          return;
-        }
         var location_geo = ol.proj.fromLonLat([parseFloat(longitude.value),parseFloat(latitude.value)]);
         map.getView().setCenter(location_geo);
         map.getView().setZoom(18);
@@ -1048,12 +928,8 @@
         center_utm.addEventListener('click', function() {
         var x = document.getElementById('x');
         var y = document.getElementById('y');
-        if ((isEmpty(x.value))||(isEmpty(y.value))) {
-          alert("Invalid parameters");
-          return;
-        }
-        var location_utm = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
-        map.getView().setCenter(location_utm);
+        var pru2 = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
+        map.getView().setCenter(pru2);
         map.getView().setZoom(18);
       }, false);
 
@@ -1078,8 +954,9 @@
           }
       }
 
-      function centerStreet(lon, lat, feature){
+      function centrarCalle(lon, lat, feature){
         var pt = [lon, lat];
+        console.log(pt);
         var test= ol.proj.transform(pt,'EPSG:32628','EPSG:3857');
         if (feature){
           source.addFeature(new ol.Feature(new ol.geom.Circle(test, 5)));

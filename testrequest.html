@@ -1,43 +1,48 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WMS Capabilities Parsing</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-    <link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
+    <title>Simple Map</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.2.0/css/ol.css" type="text/css">
     <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
-    <script src="https://openlayers.org/en/v4.1.1/build/ol.js"></script>
-    <style>
-      .log-container {
-        height: 400px;
-        overflow: scroll;
-      }
-    </style>
+    <script src="https://openlayers.org/en/v4.2.0/build/ol.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+    <script src="http://epsg.io/32628.js"></script>
   </head>
   <body>
-    <pre class="log-container"><code id="log"></code></pre>
-    <button type="button" onclick="loadDoc()">Request data</button>
-    <p id="demo"></p>
+    <div id="map" class="map"></div>
     <script>
-      var parser = new ol.format.WMSCapabilities();
-      fetch('http://wms.magrama.es/sig/Agricultura/Evapotranspiracion/wms.aspx?request=GetCapabilities&service=WMS').then(function(response) {
-        return response.text();
-      }).then(function(text) {
-        var result = parser.read(text);
-        document.getElementById('log').innerText = JSON.stringify(result, null, 2);
+    var projec = new ol.proj.Projection({
+      code: "EPSG:32628"
+    });
+    ol.proj.addProjection(projec);
+      var map = new ol.Map({
+        layers: [
+          /*new ol.layer.Tile({
+            source: new ol.source.OSM()
+          }),*/
+          new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+              url: "http://idecan1.grafcan.es/ServicioWMS/MTL?service=WMS",
+              params: {'LAYERS': "WMS_LIDAR_MTL",
+                       'FORMAT': 'image/jpeg'},
+              projection: projec
+            })
+          }),
+          new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+              url: "http://idecan2.grafcan.es/ServicioWMS/MTI?service=WMS",
+              params: {'LAYERS': "VIAL"},
+              projection: projec
+            })
+          })
+        ],
+        target: 'map',
+        view: new ol.View({
+          center: [-1722584.517212906, 3257823.5051733414],
+          zoom: 8,
+        })
       });
-      function loadDoc() {
-        var xhttp = new XMLHttpRequest();
-
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("demo").innerHTML = JSON.stringify(this.responseText, null, 2);
-            console.log(JSON.stringify(this.responseText, null, 2));
-          }
-        };
-        xhttp.open("GET", "http://wms.magrama.es/sig/Agricultura/Evapotranspiracion/wms.aspx?request=GetCapabilities&service=WMS", true);
-        xhttp.send();
-      }
     </script>
   </body>
 </html>
