@@ -187,10 +187,23 @@ function layerLoader(){
             }
           }
 
+<<<<<<< HEAD
           defaultLayers = 3;
           map.on('pointermove', pointerMoveHandler);
           map.on('singleclick', clickEvents);
           document.getElementById("collapse2").className = "panel-collapse collapse in";
+=======
+            defaultLayers = 3;
+            map.on('pointermove', pointerMoveHandler);
+            map.on('singleclick', clickEvents);
+            document.getElementById("collapse2").className = "panel-collapse collapse in";
+      }else{
+        alert("Bad response from server: "+linkUrl+" " +
+              this.statusText + ' (' +
+              this.status + ')');
+        return;
+      }
+>>>>>>> a66e16dfa6b2d42c7ad2f43a7e6d45c01972a19f
     }
   }
   xhttp.send();
