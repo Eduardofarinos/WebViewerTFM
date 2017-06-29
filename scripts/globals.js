@@ -1,18 +1,16 @@
-//Start Globals
-//draws
+//Start globals variables of the project
+
+//Make draws on the map
 var sketch;
 var measureTooltipElement;
 var measureTooltip;
 var boxInteraction;
 var draw;
-//delete draws
+//Delete draws
 var featureID = 0;
-var otro;
 var selectedFeatureID;
 var tooltipid = 1;
-//modal
-var modal = document.getElementById('WMSurl');
-//initial map
+//Initial map
 var source = new ol.source.Vector();
 var vector = new ol.layer.Vector({
   source: source,
@@ -59,7 +57,8 @@ var map = new ol.Map({
 });
 pipeline.setVisible(false);
 comments.setVisible(false);
-//load wms
+//Load wms layers and maps
+var linkUrl;
 var lastlayer = 0;
 var nmaps = 0;
 var info = new Array();
@@ -69,27 +68,30 @@ var layerCrs;
 var projec;
 var layersSelected = new Array();
 var t;
-var projections = new Array();
-var linkUrl;
-//group buttons events
+var result;
+//Group buttons events
 var evt_move;
 var evt_grab;
+//Number of static layers
 var defaultLayers;
-//end Globals
 
+//Delete old infomation of the modal
 $('#PointInfo').on('hidden.bs.modal', function () {
   document.getElementById("nodelist").innerHTML = "";
-})
+});
 
+//User Can't rigth click on the map
 $('.map').bind('contextmenu', function(e) {
     return false;
 });
 
+//Now we can click in dropdown without disappearing
 $('.dropdown-menu a[data-toggle="tab"]').click(function (e) {
     e.stopPropagation()
     $(this).tab('show')
-})
+});
 
+//Check if the input is empty or has spaces
 function isEmpty(str){
   if (!str.trim() || 0 === str.length){
     return true;
@@ -98,29 +100,48 @@ function isEmpty(str){
   }
 }
 
+//Add definition of a new projection in the head
 function loadScript(url, callback){
-    var script = document.createElement("script")
-    script.type = "text/javascript";
-    if (script.readyState){  //IE
-        script.onreadystatechange = function(){
-            if (script.readyState == "loaded" ||
-                    script.readyState == "complete"){
-                script.onreadystatechange = null;
-                callback();
-            }
-        };
-    } else {  //Others
-        script.onload = function(){
-            callback();
-        };
-    }
-    script.src = url;
-    document.getElementsByTagName("head")[0].appendChild(script);
+  var script = document.createElement("script")
+  script.type = "text/javascript";
+  if (script.readyState){
+    //For Internet Explorer
+    script.onreadystatechange = function(){
+      if (script.readyState == "loaded" ||script.readyState == "complete"){
+        script.onreadystatechange = null;
+        callback();
+      }
+    };
+  }else{
+    //For the others explorers
+    script.onload = function(){
+      callback();
+    };
+  }
+  script.src = url;
+  document.getElementsByTagName("head")[0].appendChild(script);
 }
 
+//Every time the screen resize the map adjust width and height
 window.onresize = function(){
+  //Get screen resolution
   var width = screen.width;
   var height = screen.height;
-  var size = map.getSize();
-  map.setSize([width, height])
+  map.setSize([width, height]);
 }
+
+//The fist load the screen adjust the size and uncheck all buttons,
+//just in case they are in chache
+window.onload = function(){
+  //Get screen resolution
+  var width = screen.width;
+  var height = screen.height;
+  map.setSize([width, height]);
+  //Clean checkboxs
+  var myCheckbox = document.getElementsByName("myCheckbox");
+  Array.prototype.forEach.call(myCheckbox,function(mc){
+    mc.checked = false;
+  });
+}
+
+//End globals

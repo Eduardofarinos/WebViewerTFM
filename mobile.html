@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map</title>
+    <meta content="text/html;" http-equiv="content-type" charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script type="text/javascript">
+    if (screen.width > 699) {
+      document.location = "map.html";
+    }
+    </script>
+    <link rel="stylesheet" href="http://localhost/styles/style.css" type="text/css">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://openlayers.org/en/v4.0.1/build/ol.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
+    <script src="http://epsg.io/32628.js"></script>
+    <style>
+    .ol-unselectable{
+      width: auto !important;
+    }
+    .ol-viewport{
+      margin-left: 15px !important;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+
+      <div id="hiddenMenu" class="hiddenBtn">
+        <label class="btn btn-default mobileInterface">
+          <a onclick="toggleMenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
+        </label>
+      </div>
+
+      <div id="leftmenu" class="mobileLeftMenu">
+        <div class="btn-group" data-toggle="buttons" style="padding-left:8px;">
+          <label class="btn mobileLabel">
+            <a onclick="toggleMenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
+          </label>
+          <label class="btn mobileFirstLabel" for="myBtn" title="Load WMS service">
+            <button class="mobileFirstBtn" id="myBtn" data-toggle='modal' data-target='#WMSurl'><img src="../images/wms.png" style="height:26px"></button>
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lzd" title="Drag and zoom">
+            <input type="checkbox" name="myCheckbox" id="zd" onchange="zoomDrag(this, 'lzd');" /> <img src="../images/zoomdrag.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lzi" title="Zoom in">
+            <input type="checkbox" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> <img src="../images/zoomin.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lzo" title="Zoom out">
+            <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:29px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lmov"  title="click hold and move">
+            <input type="checkbox" name="myCheckbox" id="mov" onchange="mHand(this, 'lmov');"/> <img src="../images/move.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="llin" title="Draw line to measure">
+            <input type="checkbox" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> <img src="../images/lengthv2.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lpol" title="Draw polygon to measure area">
+            <input type="checkbox" name="myCheckbox" id="pol" onchange="addDraw(this, 'lpol', 'Polygon');" /> <img src="../images/area.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lcir" title="Draw cicle to measure area">
+            <input type="checkbox" name="myCheckbox" id="cir" onchange="addDraw(this, 'lcir', 'Circle');" /> <img src="../images/circle.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lpoi" title="Click coodinates">
+            <input type="checkbox" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> <img src="../images/comp.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabel" name="mylabel" id="lcom" style="padding-left:7px" title="Add a comment in coordinates">
+            <input type="checkbox" name="myCheckbox" id="com" onchange="addDraw(this, 'lcom', 'Point');"/> <img src="../images/comment.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lfid" title="Layer information in coordinates">
+            <input type="checkbox" name="myCheckbox" id="fid" onchange="setCursor(this, 'lfid');"/> <img src="../images/info.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lse" title="Search street">
+            <input type="checkbox" name="myCheckbox" id="fse" onchange="displayMenu(this, 'lse', 'searchMobile');"/> <img src="../images/point.png" style="height:30px">
+          </label>
+          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lma" title="Maps and layers">
+            <input type="checkbox" name="myCheckbox" id="fma" onchange="displayMenu(this, 'lma', 'mapsMobile');"/> <img src="../images/maps.png" style="height:30px">
+          </label>
+          <label class="btn mobileLastLabel" name="mylabel" id="lcor" title="Go to coordinates">
+            <input type="checkbox" name="myCheckbox" id="fcor" onchange="displayMenu(this, 'lcor', 'coordMobile');"/> <img src="../images/coord.png" style="height:44px">
+          </label>
+
+        </div>
+      </div>
+        <div class="mobileCenter">
+          <div id="searchMobile" name="mydiv" class="mobileBox" style="display:none;">
+            <div class="mobileSearchTitle">
+              Go to Search:
+            </div>
+            <div style="text-align:initial">
+              <form>
+                <input id="street" type="search" onkeyup="showHint()" autocomplete="off">
+                , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;">
+              </form>
+              <div id="txtHint" class="hintext"></div>
+            </div>
+          </div>
+
+          <div id="coordMobile" name="mydiv" class="mobileBox" style="padding-bottom:10px;display:none;">
+            <div class="formcoordinates">
+              <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#geo">Geographic</a></li>
+                <li><a data-toggle="tab" href="#utm">UTM</a></li>
+              </ul>
+              <div class="tab-content">
+                <div id="geo" class="tab-pane fade in active">
+                  <form style="margin-top:10px">
+                    <div class="form-group">
+                      <label for="lon">Longitude:</label>
+                      <input type="text" class="form-control" id="lon" style="border-radius:0px">
+                    </div>
+                    <div class="form-group">
+                      <label for="lat">Latitude:</label>
+                      <input type="text" class="form-control" id="lat" style="border-radius:0px">
+                    </div>
+                    <input type="button" class="btn mobileCoordBtn" id="GoTo_geo" value="Submit">
+                  </form>
+                </div>
+                <div id="utm" class="tab-pane fade">
+                  <form style="margin-top:10px">
+                    <div class="form-group">
+                      <label for="x">Coordinate X:</label>
+                      <input type="text" class="form-control" id="x" style="border-radius:0px">
+                    </div>
+                    <div class="form-group">
+                      <label for="y">Coordinate Y:</label>
+                      <input type="text" class="form-control" id="y" style="border-radius:0px">
+                    </div>
+                    <input type="button" class="btn mobileCoordBtn" id="GoTo_utm" value="Submit">
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="mapsMobile" name="mydiv" class="mobileBox" style="display:none;">
+            <div class="searchtitle">
+              Maps
+            </div>
+            <div style="text-align:initial">
+              <div class="panel panel-default" style="margin-bottom:0px" >
+                <div class="panel-heading" style="background-color:#9fc1ef">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#collapse1" class="accordion-toggle">Default Maps</a>
+                  </h4>
+
+                </div>
+                <div id="collapse1" class="panel-collapse collapse in" >
+                  <div style ='padding:10px;'>
+                    <input id='vision_pipe' onclick='Visibility(this)' type='checkbox'>
+                    Tuberia
+                    <div class="optionsBox">
+                      Opacity: <input id='pipe_opa' class="mobileOptionRange" type='range' min='0' max='1' step='0.1' value='1' onchange='changeOpacity(this);'/>
+                      <span id='pipe_res'>1</span>
+                      <a id='info_pipe' class="infoRight" onclick=showInfo(this); data-toggle='modal' data-target='#infoModal'>Information</a>
+                    </div>
+                  </div>
+                  <div style ='padding:10px;'>
+                    <input id='vision_comm' onclick='Visibility(this)' type='checkbox'>
+                    Comments
+                    <div class="optionsBox">
+                      Opacity: <input id='comm_opa' class="mobileOptionRange" type='range' min='0' max='1' step='0.1' value='1' onchange='changeOpacity(this);'/>
+                      <span id='comm_res'>1</span>
+                      <a id='info_comm' class="infoRight" onclick=showInfo(this); data-toggle='modal' data-target='#infoModal'>Information</a>
+                    </div>
+                  </div>
+                </div>
+                <hr style="margin:2px">
+                <div class="panel-heading" style="background-color:#9fc1ef">
+                  <h4 class="panel-title">
+                    <a data-toggle="collapse" href="#collapse2" class="accordion-toggle collapsed">Custom Maps</a>
+                  </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse" >
+                  <div id="initialdiv" class="initialdiv">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-12" style="padding:0px">
+          <div id="group-maps">
+            <div id="map" class="map"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal fade" id="WMSurl" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="customHeader">
+              <button type="button" class="close" data-dismiss="modal" style="padding-right:5px">&times;</button>
+              <h2 class="modal-title">URL of WMS service</h2>
+            </div>
+            <div class="modal-body customBody">
+              URL: <input class="urlWmsInput" type="text" id="loader">
+              <div style="padding-top:20px;text-align:center">
+                <button class="btn urlWmsBtn" onclick="checkLayers()">Load map</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal fade" id="infoModal" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+
+            <div class="modal-header customHeader">
+              <button type="button" class="close" data-dismiss="modal" style="padding-right:5px">&times;</button>
+              <h2 class="modal-title">Layer Information</h2>
+            </div>
+            <div class="modal-body" style="padding:20px">
+              <h3 id="inf_title" class="blueTitle">[title]</h3>
+              <hr style="border-top: 1px solid #9fc1ef;">
+              <p id="inf_id">Layer ID: [name]</p>
+              <p id="inf_abs">Abstract: [abs]</p>
+              <p id="inf_cp">Contact Person: [cp]</p>
+              <p id="inf_org">Organization: [org]</p>
+              <p id="inf_email">Email: [email]</p>
+              <p id="inf_phone">Telephone: [tel]</p>
+              <p id="inf_ac">Access Constraints: [ac]</p>
+              <p id="inf_wms">WMS: [url]</p>
+              <p id="inf_legend">Legend: [lgn.png]</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal fade" id="PointInfo" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header customHeader">
+              <button type="button" class="close" data-dismiss="modal" style="padding-right:5px">&times;</button>
+              <h2 class="modal-title">Feature Information</h2>
+            </div>
+            <div class="modal-body">
+              <div id="nodelist">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal fade" id="LayerSelection" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header customHeader">
+              <button type="button" class="close" data-dismiss="modal" style="padding-right:5px">&times;</button>
+              <h2 class="modal-title">Select the your layers</h2>
+            </div>
+            <div class="modal-body">
+              <div id="nodeselection"></div>
+            </div>
+            <div class="modal-footer customFooter">
+              <button type="button" class="btn selectionBtn" onclick="layerLoader()">Done</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+  </body>
+  <script src="../scripts/globals.js"></script>
+  <script src="../scripts/focusMap.js"></script>
+  <script src="../scripts/views.js"></script>
+  <script src="../scripts/mouseEvents.js"></script>
+  <script src="../scripts/loadWmsService.js"></script>
+  <script src="../scripts/layerOptions.js"></script>
+  <script src="../scripts/mapInteractions.js"></script>
+</html>
