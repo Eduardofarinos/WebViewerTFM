@@ -1,36 +1,5 @@
 //Handle the events that user can do with the mouse on the map
 
-//This function follow the stroke while drawing, and handle the geometry type
-var pointerMoveHandler = function(evt) {
-  if (evt.dragging) {
-    return;
-  }
-  var tooltipCoord = evt.coordinate;
-
-  if (sketch) {
-    //Only when is drawing
-    var output;
-    var geom = (sketch.getGeometry());
-    if (geom instanceof ol.geom.Polygon) {
-      //Draw a polygon and calculate the area
-      output = formatArea(geom);
-      tooltipCoord = geom.getInteriorPoint().getCoordinates();
-    } else if (geom instanceof ol.geom.LineString) {
-      //Draw a line and calculate the length
-      output = formatLength(geom);
-      tooltipCoord = geom.getLastCoordinate();
-    } else if (geom instanceof ol.geom.Circle){
-      //Draw a circle and calculate the area
-      output = formatCircle(geom);
-      tooltipCoord = geom.getLastCoordinate();
-    }
-    //And set in the coordinates the tooltip with measure
-    measureTooltipElement.innerHTML = output + " <a onclick=deleteFeature("
-    +(featureID+1)+"); style='cursor:pointer;'><sup>X</sup></a>";
-    measureTooltip.setPosition(tooltipCoord);
-  }
-};
-
 //Every time a user click on the map clickEvents is responsible
 //for managing its operation
 var clickEvents = function(evt){
@@ -44,14 +13,14 @@ var clickEvents = function(evt){
   var vision_comm = document.getElementById('vision_comm');
   //Get the coordinates in the right projection
   var coordinate = evt.coordinate;
-  var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-      coordinate, 'EPSG:3857', 'EPSG:4326'));
   if (pto.checked){
     //The user wants DMS coordinates
+    var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
+        coordinate, 'EPSG:3857', 'EPSG:4326'));
     createMeasureTooltip();
     measureTooltipElement.innerHTML = "<div id='tooltip"
     +(tooltipid-1)+"' class='tooltip-static'>"
-    +hdms+" <a onclick=deleteFeature("
+    +hdms+" <a onclick=DeleteFeature("
     +(featureID)+"); style='cursor:pointer;'><sup>X</sup></a></div>";
     measureTooltip.setPosition(coordinate);
     measureTooltipElement = null;
@@ -64,7 +33,7 @@ var clickEvents = function(evt){
     measureTooltipElement.innerHTML = '<div id="tooltip'
     +(tooltipid-1)+'" class="tooltip-static"><form><div class="form-group"><label for="user">User:</label><input type="text" class="form-control" id="user" style="border-radius:0px"></div><div class="form-group" style="margin-bottom:7px"><label for="comment">Comment:</label><br><textarea rows="5" cols="25" id="comment">Write the comment</textarea><input type="hidden" id="featureid" value="'
     +featureID+'"><input type="hidden" id="pto" value="'
-    +coordinate + '"><br><div class="centerDivBtn"><button type="button" style="margin-right:25px;" name="button" class="btn commBtn" onclick=deleteFeature('
+    +coordinate + '"><br><div class="centerDivBtn"><button type="button" style="margin-right:25px;" name="button" class="btn commBtn" onclick=DeleteFeature('
     +featureID+');>Cancel</button><button type="button" name="button" class="btn commBtn" onclick="insertComm()">Submit</button></div></form></div>';
     measureTooltip.setPosition(coordinate);
     measureTooltipElement = null;
@@ -110,7 +79,7 @@ var clickEvents = function(evt){
       newdiv.innerHTML = code;
       document.getElementById("nodelist").appendChild(newdiv);
     }
-    for (var i = 0; i < (customLayers.length - defaultLayers); i++) {
+    for (var i = 0; i < (customLayers.length - 3); i++) {
       //For each layer check if has been selected
       var layer_act =  document.getElementById('layerVisibility'+i);
       if (layer_act.checked){
@@ -134,7 +103,5 @@ var clickEvents = function(evt){
     $('#PointInfo').modal('show');
   }
 }
-//Initial defaultLayers and activate the functions listeners
-defaultLayers = 0;
-map.on('pointermove', pointerMoveHandler);
+//Activate the functions listeners for map
 map.on('singleclick', clickEvents);
