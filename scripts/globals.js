@@ -1,16 +1,6 @@
 //Start globals variables of the project
 
-//Make draws on the map
-var sketch;
-var measureTooltipElement;
-var measureTooltip;
-var boxInteraction;
-var draw;
-//Delete draws
-var featureID = 0;
-var selectedFeatureID;
-var tooltipid = 1;
-//Initial map
+//Layer where draw
 var source = new ol.source.Vector();
 var vector = new ol.layer.Vector({
   source: source,
@@ -31,10 +21,20 @@ var vector = new ol.layer.Vector({
   })
 });
 vector.setZIndex(99);
+//Make draws on the map
+var sketch;
+var measureTooltipElement;
+var measureTooltip;
+var boxInteraction;
+var draw;
+//Delete draws
+var featureID = 0;
+var tooltipid = 1;
+//Default map
 var pipeline = new ol.layer.Tile({
   source: new ol.source.TileWMS({
     url: 'http://localhost:8080/geoserver/wms',
-    params: {'LAYERS': 'tuberia'},
+    params: {'LAYERS': 'tuberia'}
   })
 });
 var comments = new ol.layer.Tile({
@@ -43,11 +43,19 @@ var comments = new ol.layer.Tile({
     params: {'LAYERS': 'comments'},
   })
 });
+var bingAerialLayer = (new ol.layer.Tile({
+  preload: Infinity,
+  source: new ol.source.BingMaps({
+    key: 'Aroc7PVrUIy7ZeTKC7jEaXD34NGaOgxX8USFC-0SuAvL7HtsOVg0NQCKMV8xfLW7',
+    imagerySet: 'AerialWithLabels'
+  })
+}));
 var map = new ol.Map({
  layers: [
    new ol.layer.Tile({
-     source: new ol.source.OSM()
-   }), vector, pipeline, comments
+     source: new ol.source.OSM(),
+     zIndex: '-2'
+   }), vector, pipeline, comments, bingAerialLayer
  ],
  target: 'map',
  view: new ol.View({
@@ -57,32 +65,19 @@ var map = new ol.Map({
 });
 pipeline.setVisible(false);
 comments.setVisible(false);
+bingAerialLayer.setZIndex(-1);
+bingAerialLayer.setVisible(false);
 //Load wms layers and maps
-var linkUrl;
 var lastlayer = 0;
 var nmaps = 0;
 var info = new Array();
 var customLayers = new Array();
-var group_count = 0;
-var layerCrs;
-var projec;
 var layersSelected = new Array();
-var t;
 var result;
-//Group buttons events
-var evt_move;
-var evt_grab;
-//Number of static layers
-var defaultLayers;
 
 //Delete old infomation of the modal
 $('#PointInfo').on('hidden.bs.modal', function () {
   document.getElementById("nodelist").innerHTML = "";
-});
-
-//User Can't rigth click on the map
-$('.map').bind('contextmenu', function(e) {
-    return false;
 });
 
 //Now we can click in dropdown without disappearing
@@ -91,12 +86,23 @@ $('.dropdown-menu a[data-toggle="tab"]').click(function (e) {
     $(this).tab('show')
 });
 
-//Check if the input is empty or has spaces
+//Check if the is there empty or has spaces
 function isEmpty(str){
   if (!str.trim() || 0 === str.length){
     return true;
   }else{
     return false;
+  }
+}
+
+function changeBase(){
+  var check = document.getElementById("base");
+  if (check.checked){
+    document.getElementById("baseLabel").innerHTML = "<label for='base' style='padding-left:5px;margin-top:-2px;cursor:pointer;'><h4>Sat</h4></label>";
+    bingAerialLayer.setVisible(true);
+  }else{
+    document.getElementById("baseLabel").innerHTML = "<label for='base' style='float:right;padding-right:5px;margin-top:-2px;cursor:pointer;'><h4>Map</h4></label>";
+    bingAerialLayer.setVisible(false);
   }
 }
 
@@ -122,26 +128,34 @@ function loadScript(url, callback){
   document.getElementsByTagName("head")[0].appendChild(script);
 }
 
-//Every time the screen resize the map adjust width and height
-window.onresize = function(){
-  //Get screen resolution
-  var width = screen.width;
-  var height = screen.height;
-  map.setSize([width, height]);
-}
-
 //The fist load the screen adjust the size and uncheck all buttons,
 //just in case they are in chache
 window.onload = function(){
   //Get screen resolution
   var width = screen.width;
   var height = screen.height;
-  map.setSize([width, height]);
+  if (width < 699){
+    map.setSize([width, height]);
+  }
   //Clean checkboxs
   var myCheckbox = document.getElementsByName("myCheckbox");
   Array.prototype.forEach.call(myCheckbox,function(mc){
     mc.checked = false;
   });
 }
+
+//Press enter to submit the WMS service
+document.getElementById("WMSurl").addEventListener("keydown", function(e){
+  if (e.keyCode == 13){
+    checkLayers();
+  }
+}, false);
+
+//If the user click outside of the div, hide the hints
+$('#apl').on('touchmove click', function(event){
+  if(!$(event.target).is('#txtHint')){
+    document.getElementById('txtHint').style.display = "none";
+  }
+});
 
 //End globals
