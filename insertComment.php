@@ -1,12 +1,7 @@
 <?php
 //This php file will insert a new comment in the database
-$supuser = 'postgres';
-$passwd = '*******';
-$db = 'tfm';
-$port = 5432;
-$host = 'localhost';
 //Establishing connection with the database
-$strCnx = "host=$host port=$port dbname=$db user=$supuser password=$passwd";
+$strCnx = "host='localhost' port='5432' dbname='tfm' user='postgres' password='*********";
 $cnx = pg_connect($strCnx) or die ("Connection error. ". pg_last_error());
 //Data from the new comment
 $user = $_REQUEST["u"]; //Name of the user
