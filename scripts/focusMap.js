@@ -1,39 +1,40 @@
 //Tools group to change the map view and get general coordinates in diferents projections
 
 //Center the view geographic coordinates
-var centerGeo = document.getElementById('GoTo_geo');
-centerGeo.addEventListener('click', function() {
+var center_geo = document.getElementById('GoTo_geo');
+center_geo.addEventListener('click', function() {
   var longitude = document.getElementById('lon');
   var latitude = document.getElementById('lat');
   if ((isEmpty(longitude.value))||(isEmpty(latitude.value))) {
     alert("Invalid parameters");
     return;
   }
-  //If not empty change the coordinates to the rigth projection
-  var locationGeo = ol.proj.fromLonLat([parseFloat(longitude.value),parseFloat(latitude.value)]);
-  map.getView().setCenter(locationGeo);
+  //If not empty, change the coordinates to the rigth projection
+  var location_geo = ol.proj.fromLonLat([parseFloat(longitude.value),parseFloat(latitude.value)]);
+  map.getView().setCenter(location_geo);
   map.getView().setZoom(18);
 }, false);
 
 //Center the view UTM coordinates
-var centerUtm = document.getElementById('GoTo_utm');
-centerUtm.addEventListener('click', function() {
+var center_utm = document.getElementById('GoTo_utm');
+center_utm.addEventListener('click', function() {
   var x = document.getElementById('x');
   var y = document.getElementById('y');
   if ((isEmpty(x.value))||(isEmpty(y.value))) {
     alert("Invalid parameters");
     return;
   }
-  //If not empty change the coordinates to the rigth projection
-  var locationUtm = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
-  map.getView().setCenter(locationUtm);
+  //If not empty, change the coordinates to the rigth projection
+  var location_utm = ol.proj.transform([parseFloat(x.value), parseFloat(y.value)], 'EPSG:32628','EPSG:3857');
+  map.getView().setCenter(location_utm);
   map.getView().setZoom(18);
 }, false);
 
 
 //This function add a new map interaction
-function zoomDrag(chx_id, lb_id){
+function zoomdrag(chx_id, lb_id){
   map.removeInteraction(draw);
+  document.getElementById("map").className = "map";
   if (chx_id.checked == false){
     //Unchecked by the user, then disable the interaction
     document.getElementById("map").style.cursor = "default";
@@ -48,7 +49,7 @@ function zoomDrag(chx_id, lb_id){
     });
     map.addInteraction(boxInteraction);
     //Always check the buttons are ok
-    toggleButtons(chx_id, lb_id);
+    toggle_buttons(chx_id, lb_id);
   }
 }
 
@@ -69,6 +70,11 @@ function centerStreet(lon, lat, feature){
 function showHint() {
   var port = document.getElementById('portal');
   var str = document.getElementById('street');
+  var div = document.getElementById('txtHint');
+  if(div.style.display == "none"){
+    //To quit the property none
+    div.style.display = "inline-block";
+  }
   if(port.value != ""){
     //If empty dont show nothing
     document.getElementById("txtHint").innerHTML = "";
@@ -103,9 +109,9 @@ function insertComm() {
         //Update the map with the new point
         comments.getSource().updateParams({"time": Date.now()});
         //And delete the feature with the form.
-        deleteFeature(id.value);
+        DeleteFeature(id.value);
       }
   };
-  xmlhttp.open("POST", "insertCommentv2.php?u="+us.value+"&c="+co.value+"&p="+pt.value, true);
+  xmlhttp.open("POST", "insertComment.php?u="+us.value+"&c="+co.value+"&p="+pt.value, true);
   xmlhttp.send();
 }
