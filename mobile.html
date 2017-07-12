@@ -9,7 +9,7 @@
       document.location = "map.html";
     }
     </script>
-    <link rel="stylesheet" href="http://localhost/styles/style.css" type="text/css">
+    <link rel="stylesheet" href="../styles/style.css" type="text/css">
     <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
@@ -19,43 +19,34 @@
     <script src="https://openlayers.org/en/v4.0.1/build/ol.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.3/proj4.js"></script>
     <script src="http://epsg.io/32628.js"></script>
-    <style>
-    .ol-unselectable{
-      width: auto !important;
-    }
-    .ol-viewport{
-      margin-left: 15px !important;
-    }
-    </style>
   </head>
   <body>
-    <div class="row">
-
+    <div id="apl">
       <div id="hiddenMenu" class="hiddenBtn">
         <label class="btn btn-default mobileInterface">
-          <a onclick="toggleMenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
+          <a onclick="Togglemenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
         </label>
       </div>
 
       <div id="leftmenu" class="mobileLeftMenu">
-        <div class="btn-group" data-toggle="buttons" style="padding-left:8px;">
+        <div class="btn-group" data-toggle="buttons">
           <label class="btn mobileLabel">
-            <a onclick="toggleMenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
+            <a onclick="Togglemenu();" style="margin-left:-5px"><img class="imgMobileMenu" src="../images/caret.png"></span></a>
+          </label>
+          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lma" title="Maps and layers">
+            <input type="checkbox" name="myCheckbox" id="fma" onchange="displayMenu(this, 'lma', 'mapsMobile');"/> <img src="../images/maps.png" style="height:30px;margin-left:-2px">
           </label>
           <label class="btn mobileFirstLabel" for="myBtn" title="Load WMS service">
             <button class="mobileFirstBtn" id="myBtn" data-toggle='modal' data-target='#WMSurl'><img src="../images/wms.png" style="height:26px"></button>
           </label>
-          <label class="btn mobileDefaultLabel" name="mylabel" id="lzd" title="Drag and zoom">
-            <input type="checkbox" name="myCheckbox" id="zd" onchange="zoomDrag(this, 'lzd');" /> <img src="../images/zoomdrag.png" style="height:30px">
-          </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="lzi" title="Zoom in">
-            <input type="checkbox" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> <img src="../images/zoomin.png" style="height:30px">
+            <input type="checkbox" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> <img src="../images/zoomin.png" style="height:30px;margin-left:-2px">
           </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="lzo" title="Zoom out">
-            <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:29px">
+            <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:30px;margin-left:-2px">
           </label>
-          <label class="btn mobileDefaultLabel" name="mylabel" id="lmov"  title="click hold and move">
-            <input type="checkbox" name="myCheckbox" id="mov" onchange="mHand(this, 'lmov');"/> <img src="../images/move.png" style="height:30px">
+          <label class="btn mobileDefaultLabel" name="mylabel" id="ldraw" title="Free Drawing">
+            <input type="checkbox" name="myCheckbox" id="draw" onchange="freeDraw(this, 'ldraw');" /> <img src="../images/brush.png" style="height:30px">
           </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="llin" title="Draw line to measure">
             <input type="checkbox" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> <img src="../images/lengthv2.png" style="height:30px">
@@ -67,7 +58,7 @@
             <input type="checkbox" name="myCheckbox" id="cir" onchange="addDraw(this, 'lcir', 'Circle');" /> <img src="../images/circle.png" style="height:30px">
           </label>
           <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lpoi" title="Click coodinates">
-            <input type="checkbox" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> <img src="../images/comp.png" style="height:30px">
+            <input type="checkbox" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> <img src="../images/comp.png" style="height:30px;margin-left:-2px">
           </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="lcom" style="padding-left:7px" title="Add a comment in coordinates">
             <input type="checkbox" name="myCheckbox" id="com" onchange="addDraw(this, 'lcom', 'Point');"/> <img src="../images/comment.png" style="height:30px">
@@ -76,10 +67,7 @@
             <input type="checkbox" name="myCheckbox" id="fid" onchange="setCursor(this, 'lfid');"/> <img src="../images/info.png" style="height:30px">
           </label>
           <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lse" title="Search street">
-            <input type="checkbox" name="myCheckbox" id="fse" onchange="displayMenu(this, 'lse', 'searchMobile');"/> <img src="../images/point.png" style="height:30px">
-          </label>
-          <label class="btn mobileDefaultLabelLeft" name="mylabel" id="lma" title="Maps and layers">
-            <input type="checkbox" name="myCheckbox" id="fma" onchange="displayMenu(this, 'lma', 'mapsMobile');"/> <img src="../images/maps.png" style="height:30px">
+            <input type="checkbox" name="myCheckbox" id="fse" onchange="displayMenu(this, 'lse', 'searchMobile');"/> <img src="../images/point.png" style="height:30px;margin-left:-2px">
           </label>
           <label class="btn mobileLastLabel" name="mylabel" id="lcor" title="Go to coordinates">
             <input type="checkbox" name="myCheckbox" id="fcor" onchange="displayMenu(this, 'lcor', 'coordMobile');"/> <img src="../images/coord.png" style="height:44px">
@@ -94,10 +82,10 @@
             </div>
             <div style="text-align:initial">
               <form>
-                <input id="street" type="search" onkeyup="showHint()" autocomplete="off">
-                , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;">
+                <input id="street" type="search" onkeyup="showHint()" autocomplete="off" style="-webkit-appearance:textfield;margin:1px;width:69%">
+                , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;-webkit-appearance:textfield;margin-top:1px;">
               </form>
-              <div id="txtHint" class="hintext"></div>
+              <div id="txtHint" class="mobilehintext"></div>
             </div>
           </div>
 
@@ -185,12 +173,9 @@
           </div>
         </div>
 
-        <div class="col-xs-12" style="padding:0px">
-          <div id="group-maps">
-            <div id="map" class="map"></div>
-          </div>
+        <div id="group-maps" style="padding:0px;height:100%;width:100%;position:fixed;">
+          <div id="map" class="map"></div>
         </div>
-
       </div>
 
       <div class="modal fade" id="WMSurl" role="dialog">
