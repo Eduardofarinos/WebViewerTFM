@@ -76,7 +76,7 @@ function showInfo(layer) {
     document.getElementById("inf_phone").innerHTML = "Telephone: ";
     document.getElementById("inf_ac").innerHTML = "Access Constraints: NONE";
     document.getElementById("inf_wms").innerHTML = "WMS: http://localhost:8080/geoserver/wms?service=wms&version=1.3.0&request=GetCapabilities";
-    document.getElementById("inf_legend").innerHTML = "Legend:<br><img src='http://localhost:8080/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=tfm:tuberia'> Pipeline";
+    document.getElementById("inf_legend").innerHTML = "Legend:<br><img src='http://localhost:8080/geoserver/tfm/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&STRICT=false&style=Diametros'>";
     return;
   }
   if (layer.id == "info_comm"){
@@ -105,4 +105,11 @@ function showInfo(layer) {
   document.getElementById("inf_ac").innerHTML = "Access Constraints: "+info[layer.id][7];
   document.getElementById("inf_wms").innerHTML = "WMS: "+info[layer.id][8];
   document.getElementById("inf_legend").innerHTML = "Legend:<br><img style='max-width:100%' src='"+info[layer.id][9]+"'>";
+}
+
+function setStyle(val){
+  var params = {
+      'STYLES': val
+  };
+  pipeline.getSource().updateParams(params);
 }
