@@ -13,7 +13,7 @@ function checkLayers(){
   }
 
   //The link can have 3 diferent case
-  linkUrl = url.value;
+  var linkUrl = url.value;
   linkUrl = linkUrl.trim();
   if(linkUrl.indexOf('request') < 0){
     //If there no the string 'request' means we need to put it
@@ -58,6 +58,9 @@ function checkLayers(){
 //Put the data in a new map with all layers options
 function layerLoader(){
   $('#LayerSelection').modal('hide');
+  var url = document.getElementById('loader');
+  var linkUrl = url.value;
+  url.value = ""; //Clear the link form
   var sourceLink = linkUrl.substr(0, linkUrl.indexOf('?'));
   var layer_check = document.getElementsByName("layer_check");
   //Get layers selected by the user in array,
@@ -79,29 +82,25 @@ function layerLoader(){
   //Delete old map and clear the source
   var elem = document.getElementById("map");
   elem.parentNode.removeChild(elem);
-  source.clear();
   var div = document.createElement('div');
   div.id = "map";
   div.className = "map";
   document.getElementById("group-maps").appendChild(div);
   //Load new map
-  //lnames contains the names of all layers selected
-  var lnames = new Array();
-  var nlayers = result.Capability.Layer.Layer.length;
-  //i position in all layers
-  //x position in layersSelected
-  //t position in finals arrays, customLayers, info, lnames
-  //lastlayer rebember last position of last group of layers
-  var i = 0;
-  var x = 0;
-  t = lastlayer;
+  var lnames = new Array();//lnames contains the names of all layers selected
+  var nlayers = result.Capability.Layer.Layer.length; //Number of layers
+  var i = 0; //Position to roam all layers
+  var x = 0; //Position to roam array layersSelected
+  var projec; //Projection of the actual layer
+  var projections = new Array(); //Projections already defined
+  var layerCrs; //The EPSG of the actual layer
 
   //Create a new toggle with all layers selected, name is title of the service
   var collapmap = document.createElement('div');
   collapmap.innerHTML = '<p id="group_'
-  +group_count+'" onclick="changeSymbol(this)" data-toggle="collapse" data-target="#op'
+  +nmaps+'" onclick="changeSymbol(this)" data-toggle="collapse" data-target="#op'
   +nmaps+'" style="cursor:pointer;margin:0px"><i id="symbol_'
-  +group_count+'" class="glyphicon glyphicon-minus"></i> <u>'
+  +nmaps+'" class="glyphicon glyphicon-minus"></i> <u>'
   +result.Service.Title+'</u></p><div id="op'
   +nmaps+'" class="collapse in"></div>';
   document.getElementById("initialdiv").appendChild(collapmap);
@@ -117,8 +116,8 @@ function layerLoader(){
         location.reload();
       }
       //Get all information of each layers
-      lnames[t] = result.Capability.Layer.Layer[i].Name;
-      info[t] = [result.Capability.Layer.Layer[i].Title,
+      lnames[lastlayer] = result.Capability.Layer.Layer[i].Name;
+      info[lastlayer] = [result.Capability.Layer.Layer[i].Title,
                  result.Capability.Layer.Layer[i].Name,
                  result.Capability.Layer.Layer[i].Abstract,
                  result.Service.ContactInformation.ContactPersonPrimary.ContactPerson,
@@ -131,7 +130,7 @@ function layerLoader(){
         //The map is in EPSG:3857 specific projection
         if((layerCrs != "EPSG:4326")&&(layerCrs != "CRS:84")){
           //If the layer is in other projection
-          info[t].push(layerCrs);
+          info[lastlayer].push(layerCrs);
           if (layerCrs == "EPSG:32628") {
             //This is already defined
             projec = new ol.proj.Projection({
@@ -156,52 +155,52 @@ function layerLoader(){
               });
             }
           }
-          customLayers[t] = new ol.layer.Tile({
+          customLayers[lastlayer] = new ol.layer.Tile({
             source: new ol.source.TileWMS({
               url: sourceLink,
-              params: {'LAYERS': lnames[t],
+              params: {'LAYERS': lnames[lastlayer],
                        'FORMAT': format},
               projection: projec
             })
           });
        }else{
          //If the layer is in the right projection
-         info[t].push("EPSG:3857");
-         customLayers[t] = new ol.layer.Tile({
+         info[lastlayer].push("EPSG:3857");
+         customLayers[lastlayer] = new ol.layer.Tile({
            source: new ol.source.TileWMS({
              url: sourceLink,
-             params: {'LAYERS': lnames[t],
+             params: {'LAYERS': lnames[lastlayer],
                       'FORMAT': format},
            })
          });
        }
        // Add all the layers options Visibility, Opacity and Information
        var layerCode = "<div style ='padding:10px;'><input id='layerVisibility"
-       +t+"' onclick='Visibility(this)' type='checkbox' checked> "
-       +info[t][0]+"<div class='customBoxLayer'>Opacity: <input id='customLayers"
-       +t+"_opa' type='range' min='0' max='1' step='0.1' value='1' class='mobileOptionRange' onchange='changeOpacity(this);'/><span id='customLayers"
-       +t+"_res'>1</span> <a id='"+t+"'onclick=showInfo(this); class='infoRight' data-toggle='modal' data-target='#infoModal'>Information</a></div></div>";
+       +lastlayer+"' onclick='Visibility(this)' type='checkbox' checked> "
+       +info[lastlayer][0]+"<div class='customBoxLayer'>Opacity: <input id='customLayers"
+       +lastlayer+"_opa' type='range' min='0' max='1' step='0.1' value='1' class='mobileOptionRange' onchange='changeOpacity(this);'/><span id='customLayers"
+       +lastlayer+"_res'>1</span> <a id='"+lastlayer+"'onclick=showInfo(this); class='infoRight' data-toggle='modal' data-target='#infoModal'>Information</a></div></div>";
        var layerDiv = document.createElement('div');
        layerDiv.innerHTML = layerCode;
        document.getElementById("op"+nmaps).appendChild(layerDiv);
-       t++;
+       lastlayer++;
        x++;
      }
     i++;
   }
-  //Add new grop of maps and rebember the number of the last layer
+  //Add new grop of maps
   nmaps++;
-  lastlayer = t;
-  group_count++;
 
   //Always push the default layers
   customLayers.push(vector);
   customLayers.push(pipeline);
   customLayers.push(comments);
+  customLayers.push(bingAerialLayer);
   map = new ol.Map({
       layers: [
         new ol.layer.Tile({
-          source: new ol.source.OSM()
+          source: new ol.source.OSM(),
+          zIndex: '-2'
         }), new ol.layer.Group({
           layers: customLayers
         })
@@ -213,16 +212,14 @@ function layerLoader(){
       })
   });
   //Rezise the map to user screen resolution
-  var width = screen.width;
+  /*var width = screen.width;
   var height = screen.height;
-  map.setSize([width, height]);
+  map.setSize([width, height]);*/
 
-  defaultLayers = 3;
   //Activate in the map events like click and move the cursor
-  map.on('pointermove', pointerMoveHandler);
   map.on('singleclick', clickEvents);
   document.getElementById("collapse2").className = "panel-collapse collapse in";
   //Clear the layer selected and all buttons if there are checked
   layersSelected = [];
-  toggleButtons('non','non');
+  toggle_buttons('non','non');
 }
