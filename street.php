@@ -1,27 +1,23 @@
 <?php
 //Get the coordinates of the street that user wants
-$supuser = 'postgres';
-$passwd = '*******';
-$db = 'tfm';
-$port = 5432;
-$host = 'localhost';
 //Establishing connection with the database
-$strCnx = "host=$host port=$port dbname=$db user=$supuser password=$passwd";
+$strCnx = "host='localhost' port='5432' dbname='tfm' user='postgres' password='*********'";
 $cnx = pg_connect($strCnx) or die ("Connection error. ". pg_last_error());
+//Request info
 $req = $_GET['calle'];
 $portal = $_GET['portal'];
-//All variables needed to break down information
-$row = array();
-$aux = array();
-$aux2 = array();
-$aux3 = array();
-$coord = array();
+
+$row = array(); //Result of the request
+$aux = array();// [
+$aux2 = array();// -> To break down the information
+$aux3 = array();//[
+$coord = array(); //Coordinate at the beginning of the street
 
 echo "<div class='results'>";
 if ($portal != ""){
   //Searching for a street and a specific portal number
   $result = pg_query($cnx, "SELECT nombre_via, ST_AsText(geom), portal
-                    FROM callejero.portales where nombre_via ILIKE '%".$req."%' and portal='".$portal."'");
+                    FROM callejero.portales where unaccent(nombre_via) ILIKE unaccent('%".$req."%') and portal='".$portal."'");
   if (pg_num_rows($result)==0){
     //The name of the street has not been found
     echo "No results";
@@ -43,7 +39,7 @@ if (($req != "")&&($portal == "")){
   //Just searching for a street
 
   $result = pg_query($cnx, "SELECT nombre_via, ST_AsText(geom), tipo_via
-                    FROM callejero.vial where nombre_via ILIKE '%".$req."%';");
+                    FROM callejero.vial where unaccent(nombre_via) ILIKE unaccent('%".$req."%');");
   if (pg_num_rows($result)==0){
     //The name of the street and portal has not been found
     echo "No results";
