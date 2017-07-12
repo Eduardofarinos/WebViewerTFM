@@ -3,6 +3,7 @@
 //Function draw features on the map, can be a line, polygon or circle
 function addDraw(chx_id, lb_id, Draw_type) {
   map.removeInteraction(draw);
+  document.getElementById("map").className = "map";
   if (chx_id.checked == false){
     //If the user uncheck change de cursor and do nothing
     document.getElementById("map").style.cursor = "default";
@@ -45,6 +46,30 @@ function addDraw(chx_id, lb_id, Draw_type) {
         function(evt) {
           // set sketch
           sketch = evt.feature;
+          var tooltipCoord = evt.coordinate;
+          listener = sketch.getGeometry().on('change', function(evt){
+            var geom = evt.target;
+            var output;
+            if (geom instanceof ol.geom.Polygon){
+              //output area of the polygon
+              output = formatArea(geom);
+              tooltipCoord = geom.getInteriorPoint().getCoordinates();
+            }
+            if (geom instanceof ol.geom.LineString){
+              //output length of the line
+              output = formatLength(geom);
+              tooltipCoord = geom.getLastCoordinate();
+            }
+            if (geom instanceof ol.geom.Circle){
+              //output area of the circle
+              output = formatCircle(geom);
+              tooltipCoord = geom.getLastCoordinate();
+            }
+            //Add function delete features
+            measureTooltipElement.innerHTML = output + " <a onclick=DeleteFeature("
+            +(featureID+1)+"); style='cursor:pointer;'><sup>X</sup></a>";
+            measureTooltip.setPosition(tooltipCoord);
+          });
         }, this);
 
     //And when ends, create a tooltip with the measure
@@ -67,7 +92,7 @@ function addDraw(chx_id, lb_id, Draw_type) {
           })
         }, this);
         //Clear buttons
-        toggleButtons(chx_id, lb_id);
+        toggle_buttons(chx_id, lb_id);
     }
 }
 
@@ -91,12 +116,36 @@ function createMeasureTooltip() {
   map.addOverlay(measureTooltip);
 }
 
+function changeUnits(measure, idSelect){
+  var measureId = idSelect.id.substr(idSelect.id.indexOf('_'), idSelect.id.length);
+  measureId = 'res'+measureId;
+  if(idSelect.id[0]=='l'){
+    if(idSelect.value == "m"){
+      measure = (Math.round(measure * 100) / 100);
+      document.getElementById(measureId).innerHTML = measure;
+    }else{
+      measure = (Math.round(measure / 1000 * 100) / 100);
+      document.getElementById(measureId).innerHTML = measure;
+    }
+  }else{
+    if(idSelect.value == "m"){
+      measure = (Math.round(measure * 100) / 100);
+      document.getElementById(measureId).innerHTML = measure;
+    }else{
+      measure = (Math.round(measure / 1000000 * 100) / 100);
+      document.getElementById(measureId).innerHTML = measure;
+    }
+  }
+}
+
 //Calculates the distance the user draw
 var formatLength = function(line) {
   var length;
   length = Math.round(line.getLength() * 100) / 100;
-  var output;
-  if (length > 100) {
+  length = (Math.round(length * 100) / 100);
+  var id = "length_"+tooltipid;
+  var output = '<label id=res_'+tooltipid+'>'+ length +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+length+','+id+');" ><option value="m">m</option><option value="km">km</option></select>';
+  /*if (length > 100) {
     //The output is in kilometers
     output = (Math.round(length / 1000 * 100) / 100) +
         ' ' + 'km';
@@ -104,7 +153,7 @@ var formatLength = function(line) {
     //The output is in meters
     output = (Math.round(length * 100) / 100) +
         ' ' + 'm';
-  }
+  }*/
   return output;
 };
 
@@ -112,8 +161,10 @@ var formatLength = function(line) {
 var formatArea = function(polygon) {
   var area;
   area = polygon.getArea();
-  var output;
-  if (area > 10000) {
+  area = (Math.round(area * 100) / 100);
+  var id = "area_"+tooltipid;
+  var output = '<label id=res_'+tooltipid+'>'+ area +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
+  /*if (area > 10000) {
     //The output is in kilometers
     output = (Math.round(area / 1000000 * 100) / 100) +
         ' ' + 'km<sup>2</sup>';
@@ -121,7 +172,7 @@ var formatArea = function(polygon) {
     //The output is in meters
     output = (Math.round(area * 100) / 100) +
         ' ' + 'm<sup>2</sup>';
-  }
+  }*/
   return output;
 };
 
@@ -129,8 +180,10 @@ var formatArea = function(polygon) {
 var formatCircle = function(circle){
   var radius = circle.getRadius();
   var area = 3.14159265359 * (radius * radius);
-  var output;
-  if (area > 10000) {
+  area = (Math.round(area * 100) / 100);
+  var id = "area_"+tooltipid;
+  var output = '<label id=res_'+tooltipid+'>'+ area +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
+  /*if (area > 10000) {
     //The output is in kilometers
     output = (Math.round(area / 1000000 * 100) / 100) +
         ' ' + 'km<sup>2</sup>';
@@ -138,12 +191,30 @@ var formatCircle = function(circle){
     //The output is in meters
     output = (Math.round(area * 100) / 100) +
         ' ' + 'm<sup>2</sup>';
-  }
+  }*/
   return output;
 }
 
+function freeDraw(chx_id, lb_id) {
+  map.removeInteraction(draw);
+  document.getElementById("map").className = "map";
+  if (chx_id.checked == false){
+    //If the user uncheck change de cursor and do nothing
+    document.getElementById("map").style.cursor = "default";
+  }else {
+    document.getElementById("map").style.cursor = "none";
+    draw = new ol.interaction.Draw({
+      source: source,
+      type: "LineString",
+      freehand: true
+    });
+    map.addInteraction(draw);
+    toggle_buttons(chx_id, lb_id);
+  }
+}
+
 //This function erases the drawing and message on the map
-function deleteFeature(id){
+function DeleteFeature(id){
   var features = source.getFeatures();
    if (features != null && features.length > 0) {
      //If there are features, search the selected to erase
