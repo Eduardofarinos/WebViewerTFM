@@ -27,39 +27,74 @@
           <label class="btn firstbtn" title="Load WMS service">
             <button id="myBtn" data-toggle='modal' data-target='#WMSurl' class="firstimage"><img src="../images/wms.png" style="height:26px"></button>
           </label>
-          <label class="btn checkbuttons" name="mylabel" id="lzd" title="Drag and zoom">
-            <input type="checkbox" name="myCheckbox" id="zd" onchange="zoomdrag(this, 'lzd');" /> <img src="../images/zoomdrag.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lzi" title="Zoom in">
-            <input type="checkbox" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> <img src="../images/zoomin.png" style="height:30px;margin-left:-3px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lzo" title="Zoom out">
-            <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:30px;margin-left:-3px">
-          </label>
+          <div class="dropdown">
+            <button class="btn checkbuttons dropdown-toggle"  data-toggle="dropdown"><img src="../images/gzoom.png" style="height:30px"></button>
+            <ul class="dropdown-menu dropdownBtn">
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lzd" title="Drag and zoom">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="zd" onchange="zoomdrag(this, 'lzd');" /> <img src="../images/zoomdrag.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lzi" title="Zoom in">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="zi" onchange="setCursor(this, 'lzi');"/> <img src="../images/zoomin.png" style="height:30px;margin-left:-3px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lzo" title="Zoom out">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:30px;margin-left:-3px">
+                </label>
+              </li>
+            </ul>
+          </div>
           <label class="btn checkbuttons" name="mylabel" id="lmov" title="click hold and move">
             <input type="checkbox" name="myCheckbox" id="mov" onchange="mHand(this, 'lmov');"/> <img src="../images/move.png" style="height:30px;margin-left:-3px">
           </label>
-          <label class="btn checkbuttons" name="mylabel" id="llin" title="Draw line to measure">
-            <input type="checkbox" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> <img src="../images/lengthv2.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lpol" title="Draw polygon to measure area">
-            <input type="checkbox" name="myCheckbox" id="pol" onchange="addDraw(this, 'lpol', 'Polygon');" /> <img src="../images/area.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lcir" title="Draw cicle to measure area">
-            <input type="checkbox" name="myCheckbox" id="cir" onchange="addDraw(this, 'lcir', 'Circle');" /> <img src="../images/circle.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lpoi" style="padding-left:9px" title="Click coodinates">
-            <input type="checkbox" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> <img src="../images/comp.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lcom" style="padding-left:7px" title="Add a comment in coordinates">
-            <input type="checkbox" name="myCheckbox" id="com" onchange="addDraw(this, 'lcom', 'Point');"/> <img src="../images/comment.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="lfid" style="padding-left:9px" title="Layer information in coordinates">
-            <input type="checkbox" name="myCheckbox" id="fid" onchange="setCursor(this, 'lfid');"/> <img src="../images/info.png" style="height:30px">
-          </label>
-          <label class="btn checkbuttons" name="mylabel" id="ldraw" title="Free Drawing">
-            <input type="checkbox" name="myCheckbox" id="draw" onchange="freeDraw(this, 'ldraw');" /> <img src="../images/lengthv2.png" style="height:30px">
-          </label>
+          <div class="dropdown">
+            <button class="btn checkbuttons dropdown-toggle"  data-toggle="dropdown"><img src="../images/ruler.png" style="height:30px"></button>
+            <ul class="dropdown-menu dropdownBtn">
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="ldraw" title="Free Drawing">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="draw" onchange="freeDraw(this, 'ldraw', 'false');" /> <img src="../images/brush.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="llin" title="Draw line to measure">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> <img src="../images/lengthv2.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lpol" title="Draw polygon to measure area">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="pol" onchange="addDraw(this, 'lpol', 'Polygon');" /> <img src="../images/area.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lcir" title="Draw cicle to measure area">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="cir" onchange="addDraw(this, 'lcir', 'Circle');" /> <img src="../images/circle.png" style="height:30px">
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown">
+            <button class="btn checkbuttons dropdown-toggle"  data-toggle="dropdown"><img src="../images/pin.png" style="height:30px"></button>
+            <ul class="dropdown-menu dropdownBtn">
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lpoi" style="padding-left:9px" title="Click coodinates">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="poi" onchange="addDraw(this, 'lpoi', 'Point');" /> <img src="../images/comp.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lcom" style="padding-left:7px" title="Add a comment in coordinates">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="com" onchange="addDraw(this, 'lcom', 'Point');"/> <img src="../images/comment.png" style="height:30px">
+                </label>
+              </li>
+              <li style="margin-left:2px">
+                <label class="btn checkbuttons" name="mylabel" id="lfid" style="padding-left:9px" title="Layer information in coordinates">
+                  <input type="checkbox" style="display:none" name="myCheckbox" id="fid" onchange="setCursor(this, 'lfid');"/> <img src="../images/info.png" style="height:30px">
+                </label>
+              </li>
+            </ul>
+          </div>
           <label class="btn lastbtn" name="mylabel" id="lcoor" title="Go to coordinates">
             <div class="dropdown" id="fcoor">
               <button type="button" class="btn btn-secondary dropdown-toggle coordbtn" onclick="setCoord('fcoor', 'lcoor');" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
@@ -93,14 +128,20 @@
           </label>
         </div>
 
+        <div class="leftv">
+          Color: <input type="color" class="cPicker" onchange="pickColor(value)" name="favcolor" value="#ffcc33">
+          Size: <input class="sizeRange" type='range' min='1' max='10' step='1' value='2' onchange='pickWeight(value);'/>
+          <span id='resWidth'>2</span>
+        </div>
+
         <div class="searchBar">
           <div class="searchtitle">
             Go to Search:
           </div>
           <div>
             <form>
-              <input id="street" type="search" onkeyup="showHint()" autocomplete="off" style="-webkit-appearance:textfield;margin-top:1px;width:70%">
-              , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;-webkit-appearance:textfield;margin-top:1px">
+              <input id="street" type="search" onkeyup="showHint()" autocomplete="off" class="inputStreet">
+              , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" class="inputPortal">
             </form>
             <div id="txtHint" class="hintext"></div>
           </div>
@@ -111,6 +152,24 @@
             Maps
           </div>
           <div>
+            <div class="panel-heading" style="background-color:#9fc1ef">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" href="#collapse0" class="accordion-toggle collapsed">Thematic Maps</a>
+              </h4>
+            </div>
+              <div id="collapse0" class="panel-collapse collapse" >
+                <div style ='padding:10px;'>
+                  <select onchange="selecThematic(value)">
+                    <option value="">Default</option>
+                    <option value="hipsometrico">Hipsométrico</option>
+                    <option value="clinometrico">Clinométrico</option>
+                    <option value="sombras">Modelo de Sombras</option>
+                    <option value="temp">Temperatura</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <hr style="margin:2px">
             <div class="panel panel-default" >
               <div class="panel-heading" style="background-color:#9fc1ef">
                 <h4 class="panel-title">
@@ -177,10 +236,10 @@
         </div>
       </div>
 
-      <div style="margin:12px;z-index:2;position:absolute;right:0;">
+      <div class="divSwitch">
         <label class="switch" onchange="changeBase()">
           <input type="checkbox" id="base">
-          <div class="slider" id="baseLabel"><label for="base" style="float:right;padding-right:5px;margin-top:-2px;cursor:pointer;"><h4>Map</h4></label></div></div>
+          <div class="slider" id="baseLabel"><label for="base" class="rSlider"><h4>Map</h4></label></div></div>
         </label>
       </div>
 
