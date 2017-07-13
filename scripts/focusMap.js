@@ -115,3 +115,17 @@ function insertComm() {
   xmlhttp.open("POST", "insertComment.php?u="+us.value+"&c="+co.value+"&p="+pt.value, true);
   xmlhttp.send();
 }
+
+//Change the thematic base layer in the map
+function selecThematic(bmap){
+  //Set all layers hidden
+  hipsometrico.setVisible(false);
+  clinometrico.setVisible(false);
+  sombras.setVisible(false);
+  temp.setVisible(false);
+  if(bmap){
+    //If the user want to change to this view
+    window[bmap].setVisible(true);
+  }
+  //If not, default base layer
+}
