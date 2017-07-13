@@ -1,32 +1,8 @@
 html, body {
 height: 100%;
 }
-.grMap{
-  padding:0px;
-  height:100%;
-  width:100%;
-  position:fixed;
-}
-.select-style {
-    border: 0px;
-    width: 40px;
-    border-radius: 0px;
-    overflow: hidden;
-}
 
-.select-style select {
-    padding: 5px 8px;
-    width: 130%;
-    border: none;
-    box-shadow: none;
-    background: transparent;
-    background-image: none;
-    -webkit-appearance: none;
-}
-
-.select-style select:focus {
-    outline: none;
-}
+/*Map option*/
 .grabbable {
     cursor: move !important; /* fallback if grab cursor is unsupported */
     cursor: grab !important;
@@ -38,6 +14,7 @@ height: 100%;
     cursor: -moz-grabbing !important;
     cursor: -webkit-grabbing !important;
 }
+
 /*Measure tooltip*/
 .tooltip {
   position: relative;
@@ -76,6 +53,23 @@ height: 100%;
 }
 
 /*switch buttons*/
+.divSwitch{
+  margin:12px;
+  z-index:2;
+  position:absolute;
+  right:0;
+}
+.rSlider{
+  float:right;
+  padding-right:5px;
+  margin-top:-2px;
+  cursor:pointer;
+}
+.lSlider{
+  padding-left:5px;
+  margin-top:-2px;
+  cursor:pointer;
+}
 .switch {
   position: relative;
   display: inline-block;
@@ -83,9 +77,7 @@ height: 100%;
   height: 34px;
   margin-left: 10px;
 }
-
 .switch input {display:none;}
-
 .slider {
   position: absolute;
   cursor: pointer;
@@ -97,7 +89,6 @@ height: 100%;
   -webkit-transition: .4s;
   transition: .4s;
 }
-
 .slider:before {
   position: absolute;
   content: "";
@@ -109,15 +100,12 @@ height: 100%;
   -webkit-transition: .4s;
   transition: .4s;
 }
-
 input:checked + .slider {
   background-color: #9fc1ef;
 }
-
 input:focus + .slider {
   box-shadow: 0 0 1px #9fc1ef;
 }
-
 input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
@@ -198,6 +186,51 @@ input:checked + .slider:before {
 }
 
 /*Styles for left menu*/
+.grMap{
+  padding:0px;
+  height:100%;
+  width:100%;
+  position:fixed;
+}
+.select-style {
+    border: 0px;
+    width: 40px;
+    border-radius: 0px;
+    overflow: hidden;
+}
+.select-style select {
+    padding: 5px 8px;
+    width: 130%;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    -webkit-appearance: none;
+}
+.select-style select:focus {
+    outline: none;
+}
+.cPicker{
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  width: 48px;
+  height: 20px;
+}
+.inputStreet{
+  -webkit-appearance:textfield !important;
+  margin-top:1px;
+  width:70%;
+}
+.inputPortal{
+  width:20%;
+  -webkit-appearance:textfield !important;
+  margin-top:1px;
+}
+.dropdownBtn{
+  min-width:56px !important;
+  padding:2px 0 !important;
+}
 .results{
   background: white;
   border:2px solid #9fc1ef;
@@ -317,6 +350,11 @@ input:checked + .slider:before {
   display:inline-block !important;
   margin-bottom:-5px;
 }
+.sizeRange{
+  width:47% !important;
+  display:inline-block !important;
+  margin-bottom:-5px;
+}
 .infoRight{
   cursor:pointer;
   float:right;
@@ -330,6 +368,27 @@ input:checked + .slider:before {
 }
 
 /*Mobile*/
+.mobileSizeRange{
+  width:40% !important;
+  display:inline-block !important;
+  margin-bottom:-5px;
+}
+.mobileGrMap{
+  padding:0px;
+  height:100%;
+  width:100%;
+  position:fixed;
+}
+.mobileInputStreet{
+  -webkit-appearance:textfield !important;
+  margin:1px;
+  width:69%;
+}
+.mobileInputPortal{
+  width:20%;
+  -webkit-appearance:textfield !important;
+  margin-top:1px;
+}
 .hiddenBtn{
   display:none;
   z-index:2;
@@ -371,7 +430,6 @@ input:checked + .slider:before {
   width:48px;
   height:42px;
 }
-
 .mobileDefaultLabel{
   background-color:rgba(138,157,194,0.8);
   width:50px;
@@ -441,6 +499,7 @@ input:checked + .slider:before {
 .ol-attribution.ol-unselectable.ol-control.ol-collapsed{
   display: none;
 }
+
 /*Dropmenus*/
 .dropbtn {
     background-color: #4CAF50;
@@ -450,13 +509,11 @@ input:checked + .slider:before {
     border: none;
     cursor: pointer;
 }
-
 .dropdown {
     position: relative;
     display: inline-block;
     margin-right: -8px;
 }
-
 .dropdown-content {
     display: none;
     position: absolute;
@@ -465,20 +522,16 @@ input:checked + .slider:before {
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
 }
-
 .dropdown-content a {
     color: black;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
 }
-
 .dropdown-content a:hover {background-color: #f1f1f1}
-
 .dropdown:hover .dropdown-content {
     display: block;
 }
-
 .dropdown:hover .dropbtn {
     background-color: #3e8e41;
 }
