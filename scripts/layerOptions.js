@@ -107,9 +107,10 @@ function showInfo(layer) {
   document.getElementById("inf_legend").innerHTML = "Legend:<br><img style='max-width:100%' src='"+info[layer.id][9]+"'>";
 }
 
+//Set the style of pipeline
 function setStyle(val){
   var params = {
-      'STYLES': val
+    'STYLES': val
   };
   pipeline.getSource().updateParams(params);
 }
