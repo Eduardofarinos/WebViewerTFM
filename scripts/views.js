@@ -140,3 +140,56 @@ function setCoord(chx_id, lb_id) {
     toggle_buttons(chx_id, lb_id);
   }
 }
+
+//Change the draws color
+function pickColor(newColor){
+  //Create a new style with the new colors and base width
+  var newStyle = new ol.style.Style({
+     fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.4)',
+          weight: baseWidth
+        }),
+     stroke: new ol.style.Stroke({
+          color: newColor,
+          width: baseWidth
+     })
+  });
+  //Set new style and now the new color is the base color
+  vector.setStyle(newStyle);
+  baseColor = newColor;
+}
+
+//Change the width of draws lines
+function pickWeight(newWidth){
+  //Create a new style with the new width and base color
+  var newStyle = new ol.style.Style({
+     fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.4)',
+          weight: newWidth
+        }),
+     stroke: new ol.style.Stroke({
+          color: baseColor,
+          width: newWidth
+     })
+  });
+  //Set new style and now the new width is the base width
+  vector.setStyle(newStyle);
+  baseWidth = newWidth;
+  //Update de number for the user
+  document.getElementById("resWidth").innerHTML = newWidth;
+
+}
+
+//Control the switch Map-Sat
+function changeBase(){
+  var check = document.getElementById("base");
+  if (check.checked){
+    //Change to satellite view
+    document.getElementById("baseLabel").innerHTML = "<label for='base' class='lSlider'><h4>Sat</h4></label>";
+    bingAerialLayer.setVisible(true);
+  }else{
+    //Change to map view
+    document.getElementById("baseLabel").innerHTML = "<label for='base' class='rSlider'><h4>Map</h4></label>";
+    bingAerialLayer.setVisible(false);
+  }
+}
