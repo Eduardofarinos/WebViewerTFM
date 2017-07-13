@@ -46,7 +46,7 @@
             <input type="checkbox" name="myCheckbox" id="zo" onchange="setCursor(this, 'lzo');"/> <img src="../images/zoomout.png" style="height:30px;margin-left:-2px">
           </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="ldraw" title="Free Drawing">
-            <input type="checkbox" name="myCheckbox" id="draw" onchange="freeDraw(this, 'ldraw');" /> <img src="../images/brush.png" style="height:30px">
+            <input type="checkbox" name="myCheckbox" id="draw" onchange="freeDraw(this, 'ldraw', 'true');" /> <img src="../images/brush.png" style="height:30px">
           </label>
           <label class="btn mobileDefaultLabel" name="mylabel" id="llin" title="Draw line to measure">
             <input type="checkbox" name="myCheckbox" id="lin" onchange="addDraw(this, 'llin', 'LineString');" /> <img src="../images/lengthv2.png" style="height:30px">
@@ -82,8 +82,8 @@
             </div>
             <div style="text-align:initial">
               <form>
-                <input id="street" type="search" onkeyup="showHint()" autocomplete="off" style="-webkit-appearance:textfield;margin:1px;width:69%">
-                , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" style="width:20%;-webkit-appearance:textfield;margin-top:1px;">
+                <input id="street" type="search" onkeyup="showHint()" autocomplete="off" class="mobileInputStreet">
+                , Nº<input id="portal" type="search" onkeyup="showHint()" autocomplete="off" class="mobileInputPortal">
               </form>
               <div id="txtHint" class="mobilehintext"></div>
             </div>
@@ -126,10 +126,37 @@
             </div>
           </div>
 
+          <div id="drawMobile" name="mydiv" class="mobileBox" style="display:none;">
+            <div class="leftv" style="margin-bottom:5px">
+              Color: <input type="color" class="cPicker" onchange="pickColor(value)" name="favcolor" value="#ffcc33">
+              Size: <input class="mobileSizeRange" type='range' min='1' max='10' step='1' value='2' onchange='pickWeight(value);'/>
+              <span id='resWidth'>2</span>
+            </div>
+          </div>
+
           <div id="mapsMobile" name="mydiv" class="mobileBox" style="display:none;">
             <div class="searchtitle">
               Maps
             </div>
+            <div style="text-align:initial">
+              <div class="panel-heading" style="background-color:#9fc1ef">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" href="#collapse0" class="accordion-toggle collapsed">Thematic Maps</a>
+                </h4>
+              </div>
+                <div id="collapse0" class="panel-collapse collapse" >
+                  <div style ='padding:10px;'>
+                    <select onchange="selecThematic(value)">
+                      <option value="">Default</option>
+                      <option value="hipsometrico">Hipsométrico</option>
+                      <option value="clinometrico">Clinométrico</option>
+                      <option value="sombras">Modelo de Sombras</option>
+                      <option value="temp">Temperatura</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <hr style="margin:2px">
             <div style="text-align:initial">
               <div class="panel panel-default" style="margin-bottom:0px" >
                 <div class="panel-heading" style="background-color:#9fc1ef">
@@ -141,7 +168,30 @@
                 <div id="collapse1" class="panel-collapse collapse in" >
                   <div style ='padding:10px;'>
                     <input id='vision_pipe' onclick='Visibility(this)' type='checkbox'>
-                    Tuberia
+                    <select id="styleTuberia" onchange="setStyle(value)">
+                      <option value="">Tubería</option>
+                      <option value="Diametros">All diameters</option>
+                      <option value="75">-75</option>
+                      <option value="75-90">75-90</option>
+                      <option value="90-110">90-110</option>
+                      <option value="110-175">110-175</option>
+                      <option value="175-250">175-250</option>
+                      <option value="250-400">250-400</option>
+                      <option value="400-600">400-600</option>
+                      <option value="600">+600</option>
+                      <option value="sector0">Sector 0</option>
+                      <option value="sector1">Sector 1</option>
+                      <option value="sector2">Sector 2</option>
+                      <option value="sector3">Sector 3</option>
+                      <option value="sector4">Sector 4</option>
+                      <option value="sector5">Sector 5</option>
+                      <option value="sector6">Sector 6</option>
+                      <option value="sector7">Sector 7</option>
+                      <option value="sector8">Sector 8</option>
+                      <option value="sector9">Sector 9</option>
+                      <option value="sector10">Sector 10</option>
+                      <option value="sectorDes">Sector Unknow</option>
+                    </select>
                     <div class="optionsBox">
                       Opacity: <input id='pipe_opa' class="mobileOptionRange" type='range' min='0' max='1' step='0.1' value='1' onchange='changeOpacity(this);'/>
                       <span id='pipe_res'>1</span>
@@ -173,7 +223,14 @@
           </div>
         </div>
 
-        <div id="group-maps" style="padding:0px;height:100%;width:100%;position:fixed;">
+        <div class="divSwitch">
+          <label class="switch" onchange="changeBase()">
+            <input type="checkbox" id="base">
+            <div class="slider" id="baseLabel"><label for="base" class="rSlider"><h4>Map</h4></label></div></div>
+          </label>
+        </div>
+
+        <div id="group-maps" class="mobileGrMap">
           <div id="map" class="map"></div>
         </div>
       </div>
