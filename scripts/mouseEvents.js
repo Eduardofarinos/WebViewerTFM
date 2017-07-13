@@ -25,7 +25,6 @@ var clickEvents = function(evt){
     measureTooltip.setPosition(coordinate);
     measureTooltipElement = null;
     createMeasureTooltip();
-    ol.Observable.unByKey();
   }
   if (comment.checked){
     //Display the form for instertComm on the coordinates user click
@@ -79,7 +78,7 @@ var clickEvents = function(evt){
       newdiv.innerHTML = code;
       document.getElementById("nodelist").appendChild(newdiv);
     }
-    for (var i = 0; i < (customLayers.length - 3); i++) {
+    for (var i = 0; i < (customLayers.length - 8); i++) {
       //For each layer check if has been selected
       var layer_act =  document.getElementById('layerVisibility'+i);
       if (layer_act.checked){
