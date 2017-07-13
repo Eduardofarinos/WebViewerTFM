@@ -1,21 +1,23 @@
 //Start globals variables of the project
 
-//Layer where draw
+//Layer where draw and features
+var baseWidth = 2;
+var baseColor = '#ffcc33';
 var source = new ol.source.Vector();
 var vector = new ol.layer.Vector({
   source: source,
   style: new ol.style.Style({
     fill: new ol.style.Fill({
-      color: 'rgba(255, 255, 255, 0.2)'
+      color: 'rgba(255, 255, 255, 0.4)'
     }),
     stroke: new ol.style.Stroke({
-      color: '#ffcc33',
-      width: 2
+      color: baseColor,
+      width: baseWidth
     }),
     image: new ol.style.Circle({
       radius: 7,
       fill: new ol.style.Fill({
-        color: '#ffcc33'
+        color: baseColor
       })
     })
   })
@@ -30,32 +32,79 @@ var draw;
 //Delete draws
 var featureID = 0;
 var tooltipid = 1;
-//Default map
+//Default maps
 var pipeline = new ol.layer.Tile({
   source: new ol.source.TileWMS({
-    url: 'http://localhost:8080/geoserver/wms',
-    params: {'LAYERS': 'tuberia'}
-  })
+    url: 'http://localhost:8080/geoserver/wms', //Source
+    params: {'LAYERS': 'tuberia'} //Same of the layer
+  }),
+  visible: false //Hidden by default
 });
 var comments = new ol.layer.Tile({
   source: new ol.source.TileWMS({
     url: 'http://localhost:8080/geoserver/wms',
     params: {'LAYERS': 'comments'},
-  })
+  }),
+  visible: false
 });
+//Satellite map
 var bingAerialLayer = (new ol.layer.Tile({
   preload: Infinity,
   source: new ol.source.BingMaps({
-    key: 'Aroc7PVrUIy7ZeTKC7jEaXD34NGaOgxX8USFC-0SuAvL7HtsOVg0NQCKMV8xfLW7',
+    key: '**********************************',
     imagerySet: 'AerialWithLabels'
-  })
+  }),
+  zIndex: '-1',
+  visible: false
 }));
+//Thematic maps
+var hipsometrico = new ol.layer.Tile({
+  source: new ol.source.TileWMS({
+    url: 'http://idecan1.grafcan.es/ServicioWMS/Hipsometrico',
+    params: {'LAYERS': 'WMS_HIPSOMETRICO',
+             'FORMAT': 'image/jpeg'},
+    projection: 'EPSG:32628'
+  }),
+  zIndex: '-1',
+  visible: false
+});
+var clinometrico = new ol.layer.Tile({
+  source: new ol.source.TileWMS({
+    url: 'http://idecan1.grafcan.es/ServicioWMS/Clinometrico',
+    params: {'LAYERS': 'WMS_CLINOMETRICO',
+             'FORMAT': 'image/jpeg'},
+    projection: 'EPSG:32628'
+  }),
+  zIndex: '-1',
+  visible: false
+});
+var sombras = new ol.layer.Tile({
+  source: new ol.source.TileWMS({
+    url: 'http://idecan1.grafcan.es/ServicioWMS/MDSombras',
+    params: {'LAYERS': 'WMS_HS',
+             'FORMAT': 'image/jpeg'},
+    projection: 'EPSG:32628'
+  }),
+  zIndex: '-1',
+  visible: false
+});
+var temp = new ol.layer.Tile({
+  source: new ol.source.TileWMS({
+    url: 'http://idecan1.grafcan.es/ServicioWMS/MapaSolar',
+    params: {'LAYERS': 'temperatura',
+             'FORMAT': 'image/jpeg'},
+    projection: 'EPSG:32628'
+  }),
+  zIndex: '-1',
+  visible: false
+});
 var map = new ol.Map({
  layers: [
    new ol.layer.Tile({
      source: new ol.source.OSM(),
      zIndex: '-2'
-   }), vector, pipeline, comments, bingAerialLayer
+   }), vector, pipeline, comments, bingAerialLayer, hipsometrico,
+       clinometrico, sombras, temp
  ],
  target: 'map',
  view: new ol.View({
@@ -63,10 +112,6 @@ var map = new ol.Map({
    zoom: 12
  })
 });
-pipeline.setVisible(false);
-comments.setVisible(false);
-bingAerialLayer.setZIndex(-1);
-bingAerialLayer.setVisible(false);
 //Load wms layers and maps
 var lastlayer = 0;
 var nmaps = 0;
@@ -95,17 +140,6 @@ function isEmpty(str){
   }
 }
 
-function changeBase(){
-  var check = document.getElementById("base");
-  if (check.checked){
-    document.getElementById("baseLabel").innerHTML = "<label for='base' style='padding-left:5px;margin-top:-2px;cursor:pointer;'><h4>Sat</h4></label>";
-    bingAerialLayer.setVisible(true);
-  }else{
-    document.getElementById("baseLabel").innerHTML = "<label for='base' style='float:right;padding-right:5px;margin-top:-2px;cursor:pointer;'><h4>Map</h4></label>";
-    bingAerialLayer.setVisible(false);
-  }
-}
-
 //Add definition of a new projection in the head
 function loadScript(url, callback){
   var script = document.createElement("script")
@@ -124,6 +158,7 @@ function loadScript(url, callback){
       callback();
     };
   }
+  //Add to head
   script.src = url;
   document.getElementsByTagName("head")[0].appendChild(script);
 }
