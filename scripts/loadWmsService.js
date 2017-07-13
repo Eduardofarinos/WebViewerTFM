@@ -73,7 +73,7 @@ function layerLoader(){
   //If customLayers is not empty, means the last 3 layers are vector, pipeline and comments
   //delete it so that they do not interfere in the process
   if (customLayers.length > 0){
-    customLayers.splice(-3);
+    customLayers.splice(-8);
   }
   //Get the view and zoom of the actual map
   //doing this the user experience is improved
@@ -196,6 +196,10 @@ function layerLoader(){
   customLayers.push(pipeline);
   customLayers.push(comments);
   customLayers.push(bingAerialLayer);
+  customLayers.push(hipsometrico);
+  customLayers.push(clinometrico);
+  customLayers.push(sombras);
+  customLayers.push(temp);
   map = new ol.Map({
       layers: [
         new ol.layer.Tile({
@@ -212,9 +216,12 @@ function layerLoader(){
       })
   });
   //Rezise the map to user screen resolution
-  /*var width = screen.width;
-  var height = screen.height;
-  map.setSize([width, height]);*/
+
+  var width = screen.width;
+  if(width <= 699){
+    var height = screen.height;
+    map.setSize([width, height]);
+  }
 
   //Activate in the map events like click and move the cursor
   map.on('singleclick', clickEvents);
