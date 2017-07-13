@@ -17,7 +17,7 @@ function addDraw(chx_id, lb_id, Draw_type) {
       style: new ol.style.Style({
         //Fill without color
         fill: new ol.style.Fill({
-          color: 'rgba(255, 255, 255, 0.2)'
+          color: 'rgba(255, 255, 255, 0.4)'
         }),
         //Black dotted lines
         stroke: new ol.style.Stroke({
@@ -116,22 +116,29 @@ function createMeasureTooltip() {
   map.addOverlay(measureTooltip);
 }
 
+//Change the measures units
 function changeUnits(measure, idSelect){
   var measureId = idSelect.id.substr(idSelect.id.indexOf('_'), idSelect.id.length);
   measureId = 'res'+measureId;
   if(idSelect.id[0]=='l'){
+    //If is length of LineString
     if(idSelect.value == "m"){
+      //Change to meters
       measure = (Math.round(measure * 100) / 100);
       document.getElementById(measureId).innerHTML = measure;
     }else{
+      //Change to kilometers
       measure = (Math.round(measure / 1000 * 100) / 100);
       document.getElementById(measureId).innerHTML = measure;
     }
   }else{
+    //Area, polygon or circle
     if(idSelect.value == "m"){
+      //Meters
       measure = (Math.round(measure * 100) / 100);
       document.getElementById(measureId).innerHTML = measure;
     }else{
+      //Kilometers
       measure = (Math.round(measure / 1000000 * 100) / 100);
       document.getElementById(measureId).innerHTML = measure;
     }
@@ -142,18 +149,15 @@ function changeUnits(measure, idSelect){
 var formatLength = function(line) {
   var length;
   length = Math.round(line.getLength() * 100) / 100;
-  length = (Math.round(length * 100) / 100);
+  length = (Math.round(length * 100) / 100); //Display in meters by default
+  //Create id so we can change *this measure
   var id = "length_"+tooltipid;
-  var output = '<label id=res_'+tooltipid+'>'+ length +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+length+','+id+');" ><option value="m">m</option><option value="km">km</option></select>';
-  /*if (length > 100) {
-    //The output is in kilometers
-    output = (Math.round(length / 1000 * 100) / 100) +
-        ' ' + 'km';
-  } else {
-    //The output is in meters
-    output = (Math.round(length * 100) / 100) +
-        ' ' + 'm';
-  }*/
+  //Length + the selector in meters and kilometers
+  var output = '<label style="margin-bottom:0px;" id=res_'
+  +tooltipid+'>'+ length +'</label><select id="'
+  +id+'" class="select-style" onchange="changeUnits('
+  +length+','+id+');" ><option value="m">m</option><option value="km">km</option></select>';
+  //Final output
   return output;
 };
 
@@ -161,18 +165,15 @@ var formatLength = function(line) {
 var formatArea = function(polygon) {
   var area;
   area = polygon.getArea();
-  area = (Math.round(area * 100) / 100);
+  area = (Math.round(area * 100) / 100);//Meter by default
+  //Create id so we can change *this measure
   var id = "area_"+tooltipid;
-  var output = '<label id=res_'+tooltipid+'>'+ area +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
-  /*if (area > 10000) {
-    //The output is in kilometers
-    output = (Math.round(area / 1000000 * 100) / 100) +
-        ' ' + 'km<sup>2</sup>';
-  } else {
-    //The output is in meters
-    output = (Math.round(area * 100) / 100) +
-        ' ' + 'm<sup>2</sup>';
-  }*/
+  //Area + the selector in meters and kilometers
+  var output = '<label style="margin-bottom:0px;" id=res_'
+  +tooltipid+'>'+ area +'</label><select id="'+
+  id+'" class="select-style" onchange="changeUnits('
+  +area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
+  //Final output
   return output;
 };
 
@@ -180,36 +181,53 @@ var formatArea = function(polygon) {
 var formatCircle = function(circle){
   var radius = circle.getRadius();
   var area = 3.14159265359 * (radius * radius);
-  area = (Math.round(area * 100) / 100);
+  area = (Math.round(area * 100) / 100);//Meter by default
+  //Create id so we can change *this measure
   var id = "area_"+tooltipid;
-  var output = '<label id=res_'+tooltipid+'>'+ area +'</label><select id="'+id+'" class="select-style" onchange="changeUnits('+area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
-  /*if (area > 10000) {
-    //The output is in kilometers
-    output = (Math.round(area / 1000000 * 100) / 100) +
-        ' ' + 'km<sup>2</sup>';
-  } else {
-    //The output is in meters
-    output = (Math.round(area * 100) / 100) +
-        ' ' + 'm<sup>2</sup>';
-  }*/
+  //Area + the selector in meters and kilometers
+  var output = '<label style="margin-bottom:0px;" id=res_'
+  +tooltipid+'>'+ area +'</label><select id="'
+  +id+'" class="select-style" onchange="changeUnits('
+  +area+','+id+');" ><option value="m">m&sup2;</option><option value="km">km&sup2;</option></select>';
+  //Final output
   return output;
 }
 
-function freeDraw(chx_id, lb_id) {
+//Handle the free drawing on the map
+function freeDraw(chx_id, lb_id, mobile) {
   map.removeInteraction(draw);
   document.getElementById("map").className = "map";
   if (chx_id.checked == false){
     //If the user uncheck change de cursor and do nothing
     document.getElementById("map").style.cursor = "default";
   }else {
+    //It is like the function addDraw
     document.getElementById("map").style.cursor = "none";
     draw = new ol.interaction.Draw({
       source: source,
       type: "LineString",
-      freehand: true
+      freehand: true //but this variable is true
     });
     map.addInteraction(draw);
     toggle_buttons(chx_id, lb_id);
+  }
+  if (mobile == 'true'){
+    //If it mobile, display the color and size menu
+    var divMenu = document.getElementById('drawMobile');
+    if (divMenu.style.display === 'none') {
+      //Display the div
+      divMenu.style.display = 'inline-block';
+    } else {
+      //Hide the div
+      divMenu.style.display = 'none';
+    }
+    if (chx_id.checked == true){
+      //Clear other buttons
+      toggle_buttons(chx_id, lb_id, 'drawMobile');
+    }else{
+      //The user wants to hide the div clicking the same button
+      divMenu.style.display = "none";
+    }
   }
 }
 
