@@ -161,7 +161,8 @@ function layerLoader(){
               params: {'LAYERS': lnames[lastlayer],
                        'FORMAT': format},
               projection: projec
-            })
+            }),
+            zIndex: '0'
           });
        }else{
          //If the layer is in the right projection
@@ -171,7 +172,8 @@ function layerLoader(){
              url: sourceLink,
              params: {'LAYERS': lnames[lastlayer],
                       'FORMAT': format},
-           })
+           }),
+           zIndex: '0'
          });
        }
        // Add all the layers options Visibility, Opacity and Information
